@@ -9,7 +9,7 @@ namespace SystemRT {
   };
 
   [DBus(name = "com.expidus.SystemRT")]
-  public class DaemonSystemRT : GLib.Object, SystemRT {
+  public class DaemonSystemRT : GLib.Object {
     private GLib.HashTable<string, Session> _sessions;
     private GLib.MainLoop _loop;
     private GLib.DBusConnection _conn;
@@ -128,7 +128,7 @@ namespace SystemRT {
       try {
         var conn = GLib.Bus.get_sync(GLib.BusType.SYSTEM);
         var sysrt = conn.get_proxy_sync<SystemRT>("com.expidus.SystemRT", "/com/expidus/SystemRT");
-        sysrt.quit(new GLib.BusName(conn.unique_name));
+        sysrt.quit();
         return 0;
       } catch (GLib.Error e) {
         Daemon.log(Daemon.LogPriority.WARNING, "Failed to kill daemon using DBus, falling back to PID file: (%s) %s", e.domain.to_string(), e.message);

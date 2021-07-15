@@ -6,7 +6,7 @@ namespace SystemRT {
 
   [DBus(name = "com.expidus.SystemRT")]
   public interface SystemRT : GLib.Object {
-    public abstract void own_session(string disp, string auth, GLib.BusName sender) throws GLib.Error;
-    public abstract void quit(GLib.BusName sender) throws GLib.Error;
+    public abstract void own_session(string disp, string auth) throws GLib.Error;
+    public abstract void quit() throws GLib.Error;
   }
 }
