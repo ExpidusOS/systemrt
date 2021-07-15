@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.expidus.SystemRT
+Exec=@BINDIR@/systemrtd
+User=root
