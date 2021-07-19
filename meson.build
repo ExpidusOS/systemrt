@@ -5,7 +5,7 @@ dbus = dependency('dbus-1')
 gdk = dependency('gdk-3.0')
 glib = dependency('glib-2.0')
 gobject = dependency('gobject-2.0')
-gio = dependency('gio-2.0')
+gio = [dependency('gio-2.0'), dependency('gio-unix-2.0')]
 
 conf_data = configuration_data()
 conf_data.set('BINDIR', join_paths(get_option('prefix'), get_option('bindir')))
@@ -26,8 +26,8 @@ pkg.generate(libsystemrt, description: 'General API and runtime for ExpidusOS ap
 	name: 'systemrt')
 libsystemrt_dep = declare_dependency(link_with: libsystemrt)
 
-executable('systemrtd', 'src/daemon/daemon.vala', 'src/daemon/session.vala',
-  'src/daemon/utils.vala',
+executable('systemrtd', 'src/daemon/application.vala', 'src/daemon/client.vala', 'src/daemon/daemon.vala',
+	'src/daemon/session.vala', 'src/daemon/utils.vala',
   install: true,
   dependencies: [dependency('libdaemon'), dependency('devident-1.0'), glib, gobject, gio, gdk, libsystemrt_dep])
 

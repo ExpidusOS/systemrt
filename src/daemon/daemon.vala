@@ -10,6 +10,7 @@ namespace SystemRT {
 
   [DBus(name = "com.expidus.SystemRT")]
   public class DaemonSystemRT : GLib.Object {
+    private GLib.HashTable<string, Application> _apps;
     private GLib.HashTable<string, Session> _sessions;
     private GLib.MainLoop _loop;
     private GLib.DBusConnection _conn;
@@ -25,6 +26,7 @@ namespace SystemRT {
     public DaemonSystemRT(GLib.MainLoop loop, GLib.DBusConnection conn) {
       this._loop = loop;
       this._conn = conn;
+      this._apps = new GLib.HashTable<string, Application>(str_hash, str_equal);
       this._sessions = new GLib.HashTable<string, Session>(str_hash, str_equal);
       this._name_lost_id = this._conn.signal_subscribe("org.freedesktop.DBus", "org.freedesktop.DBus",
         "NameLost", "/org/freedesktop/DBus", null, GLib.DBusSignalFlags.NONE, (conn, sender_name, obj_path, iface_name, sig_name, prams) => {
@@ -39,11 +41,23 @@ namespace SystemRT {
     }
 
     [DBus(visible = false)]
+    public Application? get_application(string id) {
+      var app = this._apps.get(id);
+      if (app == null) {
+        try {
+          app = new Application(id);
+          this._apps.insert(id, app);
+        } catch (Error e) {
+          return null;
+        }
+      }
+      return app;
+    }
+
+    [DBus(visible = false)]
     public Session? get_session_by_sender(GLib.BusName sender) throws GLib.Error {
       var pid = get_pid_by_sender(this._conn, sender);
-      var sess = this.get_session(pid);
-      if (sess != null) sess.add_client(sender);
-      return sess;
+      return this.get_session(pid);
     }
 
     [DBus(visible = false)]
@@ -78,13 +92,38 @@ namespace SystemRT {
     public void quit(GLib.BusName sender) throws GLib.Error {
       var pid = get_pid_by_sender(this._conn, sender);
       var session = this.get_session(pid);
-      if (session == null) throw new Error.FAILED_SESSION_OWN("No session exists for this process");
+      if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
       if (session.owner_pid != pid) {
         var argv0 = get_cmdline(pid)[0];
         if (argv0 != GLib.Path.build_filename(BINDIR, "systemrtd") && argv0 != "systemrtd") throw new Error.INVALID_PERM("Cannot call SystemRT to quit, not a session owner");
       }
       this._loop.quit();
     }
+
+    public void ask_permission(string id, GLib.BusName sender) throws GLib.Error {
+      var pid = get_pid_by_sender(this._conn, sender);
+      var session = this.get_session(pid);
+      if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
+      var client = session.get_client(sender);
+      if (client == null) throw new Error.INVALID_CLIENT("Failed to get the client for this process");
+      var app_id = client.get_app_id();
+      if (app_id == null) throw new Error.INVALID_CLIENT("Failed to get the application ID for the client");
+      var app = this.get_application(app_id);
+      if (app == null) throw new Error.INVALID_APP("Failed to find the application using the ID (%s)".printf(app_id));
+    }
+
+    public void grant_permission(string app_id, string id, PermissionLevel level, GLib.BusName sender) throws GLib.Error {
+      var pid = get_pid_by_sender(this._conn, sender);
+      var session = this.get_session(pid);
+      if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
+      if (session.owner_pid != pid) throw new Error.INVALID_PERM("Cannot call SystemRT to quit, not a session owner");
+
+      var app = this.get_application(app_id);
+      if (app == null) throw new Error.INVALID_APP("Failed to find the application using the ID (%s)".printf(app_id));
+    }
+
+    public signal void permission_granted(string id, PermissionLevel level);
+    public signal void permission_asked(string app_id, string id);
   }
 
   private void finish() {

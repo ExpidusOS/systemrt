@@ -2,10 +2,16 @@ namespace SystemRT {
   public class Session : GLib.Object {
     private DaemonSystemRT _systemrt;
     private string _sess_path;
-    private GLib.List<GLib.BusName> _clients;
+    private GLib.HashTable<GLib.BusName, Client> _clients;
     private uint32 _owner_pid = 0;
     private Gdk.Display? _disp = null;
     private string? _auth = null;
+
+    public DaemonSystemRT systemrt {
+      get {
+        return this._systemrt;
+      }
+    }
 
     public uint32 owner_pid {
       get {
@@ -22,7 +28,7 @@ namespace SystemRT {
     public Session(DaemonSystemRT systemrt, string sess_path) {
       this._systemrt = systemrt;
       this._sess_path = sess_path;
-      this._clients = new GLib.List<GLib.BusName>();
+      this._clients = new GLib.HashTable<GLib.BusName, Client>(str_hash, str_equal);
     }
 
     public void unown() {
@@ -46,10 +52,13 @@ namespace SystemRT {
       return false;
     }
 
-    public void add_client(GLib.BusName client) {
-      if (this._clients.find(client) == null) {
-        this._clients.append(client);
+    public Client get_client(GLib.BusName sender) {
+      Client client = this._clients.get(sender);
+      if (client == null) {
+        client = new Client(this, sender);
+        this._clients.insert(sender, client);
       }
+      return client;
     }
 
     public void remove_client(GLib.BusName client) {
