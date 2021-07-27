@@ -12,8 +12,10 @@ namespace SystemRT {
   public class DaemonSystemRT : GLib.Object {
     private GLib.HashTable<string, Application> _apps;
     private GLib.HashTable<string, Session> _sessions;
+    protected GLib.HashTable<string, Permission> _perms;
     private GLib.MainLoop _loop;
     private GLib.DBusConnection _conn;
+    private Lua.LuaVM _lvm;
     private uint _name_lost_id;
 
     [DBus(visible = false)]
@@ -23,21 +25,212 @@ namespace SystemRT {
       }
     }
 
-    public DaemonSystemRT(GLib.MainLoop loop, GLib.DBusConnection conn) {
+    public DaemonSystemRT(GLib.MainLoop loop, GLib.DBusConnection conn) throws GLib.Error {
+      Object();
+
+      GLib.DirUtils.create_with_parents(LOCALSTATEDIR + "/run/expidus/runtime", 292);
+
       this._loop = loop;
       this._conn = conn;
       this._apps = new GLib.HashTable<string, Application>(str_hash, str_equal);
       this._sessions = new GLib.HashTable<string, Session>(str_hash, str_equal);
+      this._perms = new GLib.HashTable<string, Permission>(str_hash, str_equal);
       this._name_lost_id = this._conn.signal_subscribe("org.freedesktop.DBus", "org.freedesktop.DBus",
         "NameLost", "/org/freedesktop/DBus", null, GLib.DBusSignalFlags.NONE, (conn, sender_name, obj_path, iface_name, sig_name, prams) => {
           this._sessions.@foreach((k, v) => {
             v.remove_client(new GLib.BusName(prams.get_child_value(0).get_string()));
           });
         });
+      
+      this._lvm = new Lua.LuaVM.with_alloc_func((ptr, osize, nsize) => {
+        if (nsize == 0) {
+          GLib.free(ptr);
+          return null;
+        }
+
+        return GLib.realloc(ptr, nsize);
+      });
+      this._lvm.open_libs();
+
+      this._lvm.new_table();
+
+      this._lvm.push_string("__ptr");
+      this._lvm.push_lightuserdata(this);
+      this._lvm.raw_set(-3);
+
+      this._lvm.push_string("has_permission");
+      this._lvm.push_cfunction((lvm) => {
+        if (lvm.get_top() != 1) {
+          lvm.push_literal("Expected 1 argument");
+          lvm.error();
+          return 0;
+        }
+
+        if (lvm.type(1) != Lua.Type.STRING) {
+          lvm.push_literal("Invalid argument: expected a string");
+          lvm.error();
+          return 0;
+        }
+
+        var id = lvm.to_string(1);
+
+        lvm.get_global("rt");
+        lvm.get_field(2, "__ptr");
+        var self = ((DaemonSystemRT)lvm.to_userdata(3));
+
+        lvm.push_boolean((int)self.has_perm(id));
+        return 1;
+      });
+      this._lvm.raw_set(-3);
+
+      this._lvm.push_string("add_permission");
+      this._lvm.push_cfunction((lvm) => {
+        if (lvm.get_top() != 2) {
+          lvm.push_literal("Expected 2 arguments");
+          lvm.error();
+          return 0;
+        }
+
+        if (lvm.type(1) != Lua.Type.STRING) {
+          lvm.push_literal("Invalid argument: expected a string");
+          lvm.error();
+          return 0;
+        }
+
+        if (lvm.type(2) != Lua.Type.TABLE) {
+          lvm.push_literal("Invalid argument: expected a table");
+          lvm.error();
+          return 0;
+        }
+
+        var id = lvm.to_string(1);
+
+        lvm.get_global("rt");
+        lvm.get_field(3, "__ptr");
+        var self = ((DaemonSystemRT)lvm.to_userdata(4));
+        
+        if (self.has_perm(id)) {
+          lvm.push_literal("Permission already exists");
+          lvm.error();
+          return 0;
+        }
+
+        lvm.get_field(2, "allow");
+
+        if (lvm.type(5) != Lua.Type.FUNCTION) {
+          lvm.push_literal("Invalid type for field \"allow\": expected a function");
+          lvm.error();
+          return 0;
+        }
+        var allow = lvm.to_cfunction(5);
+
+        lvm.get_field(2, "deny");
+        if (lvm.type(6) != Lua.Type.FUNCTION) {
+          lvm.push_literal("Invalid type for field \"deny\": expected a function");
+          lvm.error();
+          return 0;
+        }
+        var deny = lvm.to_cfunction(6);
+
+        lvm.get_field(2, "default");
+        if (lvm.type(7) != Lua.Type.FUNCTION) {
+          lvm.push_literal("Invalid type for field \"default\": expected a function");
+          lvm.error();
+          return 0;
+        }
+        var def = lvm.to_cfunction(7);
+
+        var perm = new Permission(id, (client) => {
+          allow(lvm);
+        }, (client) => {
+          deny(lvm);
+        }, (client) => {
+          def(lvm);
+          var r = lvm.to_string(-1);
+          switch (r) {
+            case "allow":
+              return PermissionAction.ALLOW;
+            case "deny":
+            default:
+              return PermissionAction.DENY;
+          }
+        });
+
+        lvm.get_field(2, "description");
+        if (lvm.type(8) != Lua.Type.TABLE) {
+          lvm.push_literal("Invalid type for field \"description\": expected a table");
+          lvm.error();
+          return 0;
+        }
+
+        lvm.push_nil();
+        while (lvm.next(8) != 0) {
+          perm.set_desc(lvm.to_string(-2), lvm.to_string(-1));
+          lvm.pop(1);
+        }
+
+        self.add_perm(perm);
+        return 0;
+      });
+      this._lvm.raw_set(-3);
+
+      this._lvm.push_string("version");
+      this._lvm.push_string(VERSION);
+      this._lvm.raw_set(-3);
+
+      this._lvm.set_global("rt");
+
+      try {
+        var dir = GLib.Dir.open(SYSCONFDIR + "/expidus/sys/perms.d");
+        string? dirent = null;
+        while ((dirent = dir.read_name()) != null) {
+          var path = SYSCONFDIR + "/expidus/sys/perms.d/%s".printf(dirent);
+          if (!GLib.FileUtils.test(path, GLib.FileTest.IS_REGULAR)) continue;
+
+          if (this._lvm.do_file(path)) {
+            stderr.printf("systemrtd: failed to load permission \"%s\": %s\n", path, this._lvm.to_string(-1));
+          }
+        }
+      } catch (GLib.FileError e) {
+        stderr.printf("systemrtd: failed to read file/directory: (%s) %s\n", e.domain.to_string(), e.message);
+      }
     }
 
     ~DaemonSystemRT() {
       this._conn.signal_unsubscribe(this._name_lost_id);
+    }
+
+    [DBus(visible = false)]
+    public GLib.KeyFile get_config() throws GLib.FileError, GLib.KeyFileError {
+      var kf = new GLib.KeyFile();
+
+      var dir = GLib.Dir.open(SYSCONFDIR + "/expidus/sys/conf.d");
+      string? dirent = null;
+      while ((dirent = dir.read_name()) != null) {
+        var path = SYSCONFDIR + "/expidus/sys/perms.d/%s".printf(dirent);
+        var subkf = new GLib.KeyFile();
+
+        subkf.load_from_file(path, GLib.KeyFileFlags.NONE);
+
+        foreach (var group_name in subkf.get_groups()) {
+          foreach (var key_name in subkf.get_keys(group_name)) {
+            kf.set_value(group_name, key_name, subkf.get_value(group_name, key_name));
+          }
+        }
+      }
+      return kf;
+    }
+
+    [DBus(visible = false)]
+    public bool has_perm(string id) {
+      return this._perms.contains(id);
+    }
+
+    [DBus(visible = false)]
+    public void add_perm(Permission perm) {
+      if (!this._perms.contains(perm.id)) {
+        this._perms.insert(perm.id, perm);
+      }
     }
 
     [DBus(visible = false)]
@@ -139,7 +332,7 @@ namespace SystemRT {
       try {
         conn.register_object("/com/expidus/SystemRT", new DaemonSystemRT(loop, conn));
       } catch (GLib.Error e) {
-        Daemon.log(Daemon.LogPriority.ERR, "Failed to register object");
+        Daemon.log(Daemon.LogPriority.ERR, "Failed to register object: (%s:%d) %s", e.domain.to_string(), e.code, e.message);
         loop.quit();
       }
     });

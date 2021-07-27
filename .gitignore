@@ -17,4 +17,10 @@ build.vala
 *.conf
 !data/**/*.conf
 *.vapi
+!vapi/*.vapi
 *.service
+*.lua
+*.ini
+systemrt-daemon.h
+!data/conf.d/*.ini
+!src/perms.d/*.lua
