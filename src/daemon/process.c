@@ -77,21 +77,6 @@ gboolean system_rt_process_load_seccomp(SystemRTProcess* self, GError** error) {
     add_rule(umount2, 0)
     add_rule(quotactl, 0)
 
-    /* Networking */
-    add_rule(socket, 0)
-    add_rule(connect, 0)
-    add_rule(accept, 0)
-    add_rule(sendmsg, 0)
-    add_rule(recvmsg, 0)
-    add_rule(shutdown, 0)
-    add_rule(bind, 0)
-    add_rule(listen, 0)
-    add_rule(getsockname, 0)
-    add_rule(getpeername, 0)
-    add_rule(socketpair, 0)
-    add_rule(setsockopt, 0)
-    add_rule(getsockopt, 0)
-
     rc = seccomp_load(self->priv->_seccomp);
     if (rc < 0) {
         g_set_error(error, systemrt_process_quark(), 0, "Failed to load into kernel");
