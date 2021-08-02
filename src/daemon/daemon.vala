@@ -13,6 +13,8 @@ namespace SystemRT {
     private GLib.HashTable<string, Application> _apps;
     private GLib.HashTable<string, Session> _sessions;
     protected GLib.HashTable<string, Permission> _perms;
+    private GLib.List<Process> _procs;
+    private GLib.List<User> _users;
     private GLib.MainLoop _loop;
     private GLib.DBusConnection _conn;
     private Lua.LuaVM _lvm;
@@ -29,12 +31,15 @@ namespace SystemRT {
       Object();
 
       GLib.DirUtils.create_with_parents(LOCALSTATEDIR + "/run/expidus/runtime", 292);
+      GLib.DirUtils.create_with_parents(LOCALSTATEDIR + "/db/expidus/runtime", 292);
 
       this._loop = loop;
       this._conn = conn;
       this._apps = new GLib.HashTable<string, Application>(str_hash, str_equal);
       this._sessions = new GLib.HashTable<string, Session>(str_hash, str_equal);
       this._perms = new GLib.HashTable<string, Permission>(str_hash, str_equal);
+      this._procs = new GLib.List<Process>();
+      this._users = new GLib.List<User>();
       this._name_lost_id = this._conn.signal_subscribe("org.freedesktop.DBus", "org.freedesktop.DBus",
         "NameLost", "/org/freedesktop/DBus", null, GLib.DBusSignalFlags.NONE, (conn, sender_name, obj_path, iface_name, sig_name, prams) => {
           this._sessions.@foreach((k, v) => {
@@ -201,6 +206,11 @@ namespace SystemRT {
     }
 
     [DBus(visible = false)]
+    public bool is_permission_valid(string id) {
+      return this._perms.contains(id);
+    }
+
+    [DBus(visible = false)]
     public GLib.KeyFile get_config() throws GLib.FileError, GLib.KeyFileError {
       var kf = new GLib.KeyFile();
 
@@ -222,6 +232,13 @@ namespace SystemRT {
     }
 
     [DBus(visible = false)]
+    public uint32 get_pid_by_sender(GLib.BusName sender) throws GLib.Error {
+      return this._conn.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
+        "GetConnectionUnixProcessID", new GLib.Variant("(s)", sender),
+        null, GLib.DBusCallFlags.NONE, -1, null).get_child_value(0).get_uint32();
+    }
+
+    [DBus(visible = false)]
     public bool has_perm(string id) {
       return this._perms.contains(id);
     }
@@ -234,11 +251,34 @@ namespace SystemRT {
     }
 
     [DBus(visible = false)]
+    public User? get_user(uint32 uid) {
+      for (unowned var item = this._users.first(); item != null; item = item.next) {
+        if (item.data.uid == uid) return item.data;
+      }
+
+      try {
+        var user = new User(this, uid);
+        this._users.append(user);
+        return user;
+      } catch (Error e) {
+        return null;
+      }
+    }
+
+    [DBus(visible = false)]
+    public Process? get_process(uint32 pid) {
+      for (unowned var item = this._procs.first(); item != null; item = item.next) {
+        if (item.data.pid == pid) return item.data;
+      }
+      return null;
+    }
+
+    [DBus(visible = false)]
     public Application? get_application(string id) {
       var app = this._apps.get(id);
       if (app == null) {
         try {
-          app = new Application(id);
+          app = new Application(this, id);
           this._apps.insert(id, app);
         } catch (Error e) {
           return null;
@@ -249,7 +289,7 @@ namespace SystemRT {
 
     [DBus(visible = false)]
     public Session? get_session_by_sender(GLib.BusName sender) throws GLib.Error {
-      var pid = get_pid_by_sender(this._conn, sender);
+      var pid = this.get_pid_by_sender(sender);
       return this.get_session(pid);
     }
 
@@ -273,7 +313,7 @@ namespace SystemRT {
 
     // TODO: do not rely on the client to tell us the display name and Xauthority file
     public void own_session(string disp, string auth, GLib.BusName sender) throws GLib.Error {
-      var pid = get_pid_by_sender(this._conn, sender);
+      var pid = this.get_pid_by_sender(sender);
       var session = this.get_session(pid);
       if (session == null) throw new Error.FAILED_SESSION_OWN("No session exists for this process");
 
@@ -282,8 +322,20 @@ namespace SystemRT {
       }
     }
 
+    public uint32 spawn(string[] args, GLib.BusName sender) throws GLib.Error {
+      var pid = this.get_pid_by_sender(sender);
+      var session = this.get_session(pid);
+      if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
+      var proc = new Process(this, session, args);
+      proc.exit.connect(() => {
+        this._procs.remove(proc);
+      });
+      this._procs.append(proc);
+      return proc.pid;
+    }
+
     public void quit(GLib.BusName sender) throws GLib.Error {
-      var pid = get_pid_by_sender(this._conn, sender);
+      var pid = this.get_pid_by_sender(sender);
       var session = this.get_session(pid);
       if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
       if (session.owner_pid != pid) {
@@ -294,25 +346,33 @@ namespace SystemRT {
     }
 
     public void ask_permission(string id, GLib.BusName sender) throws GLib.Error {
-      var pid = get_pid_by_sender(this._conn, sender);
+      if (this.is_permission_valid(id)) throw new Error.INVALID_PERM("Invalid permission ID");
+      var pid = this.get_pid_by_sender(sender);
       var session = this.get_session(pid);
       if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
       var client = session.get_client(sender);
       if (client == null) throw new Error.INVALID_CLIENT("Failed to get the client for this process");
-      var app_id = client.get_app_id();
-      if (app_id == null) throw new Error.INVALID_CLIENT("Failed to get the application ID for the client");
-      var app = this.get_application(app_id);
-      if (app == null) throw new Error.INVALID_APP("Failed to find the application using the ID (%s)".printf(app_id));
+      var app = this.get_application(client.get_app_id());
+      if (app == null) throw new Error.INVALID_APP("Failed to get the application for this process");
+
+      if (!app.has_permission(id)) {
+        this.permission_asked(app.id, id);
+      }
     }
 
     public void grant_permission(string app_id, string id, PermissionLevel level, GLib.BusName sender) throws GLib.Error {
-      var pid = get_pid_by_sender(this._conn, sender);
+      var pid = this.get_pid_by_sender(sender);
       var session = this.get_session(pid);
       if (session == null) throw new Error.INVALID_SESSION("No session exists for this process");
       if (session.owner_pid != pid) throw new Error.INVALID_PERM("Cannot call SystemRT to quit, not a session owner");
 
       var app = this.get_application(app_id);
       if (app == null) throw new Error.INVALID_APP("Failed to find the application using the ID (%s)".printf(app_id));
+
+      app.set_permission(id, level);
+
+      var client = session.get_client_for_app_id(app_id);
+      if (client != null) client.permission_granted(id, level);
     }
 
     public signal void permission_granted(string id, PermissionLevel level);

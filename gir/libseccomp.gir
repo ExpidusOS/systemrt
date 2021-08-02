@@ -8,53 +8,21 @@ and/or use gtk-doc annotations.  -->
             xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
   <namespace name="Seccomp"
              shared-library="libseccomp.so.2"
-             c:identifier-prefixes="Seccomp"
-             c:symbol-prefixes="seccomp">
-    <alias name="scmp_datum_t" c:type="scmp_datum_t">
+             c:identifier-prefixes="seccomp,scmp"
+             c:symbol-prefixes="seccomp,scmp">
+    <alias name="datum_t" c:type="scmp_datum_t">
       <source-position filename="seccomp.h" line="90"/>
       <type name="guint64" c:type="uint64_t"/>
     </alias>
-    <alias name="scmp_filter_ctx" c:type="scmp_filter_ctx">
+    <alias name="filter_ctx" c:type="scmp_filter_ctx">
       <source-position filename="seccomp.h" line="56"/>
       <type name="gpointer" c:type="void*"/>
     </alias>
-    <constant name="AUDIT_ARCH_AARCH64" value="0" c:type="AUDIT_ARCH_AARCH64">
-      <source-position filename="seccomp.h" line="138"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="AUDIT_ARCH_MIPS64" value="0" c:type="AUDIT_ARCH_MIPS64">
-      <source-position filename="seccomp.h" line="155"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="AUDIT_ARCH_MIPS64N32"
-              value="0"
-              c:type="AUDIT_ARCH_MIPS64N32">
-      <source-position filename="seccomp.h" line="159"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="AUDIT_ARCH_MIPSEL64N32"
-              value="0"
-              c:type="AUDIT_ARCH_MIPSEL64N32">
-      <source-position filename="seccomp.h" line="163"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="AUDIT_ARCH_PPC64LE" value="0" c:type="AUDIT_ARCH_PPC64LE">
-      <source-position filename="seccomp.h" line="178"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="EM_AARCH64" value="183" c:type="EM_AARCH64">
-      <source-position filename="seccomp.h" line="136"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="EM_MIPS" value="8" c:type="EM_MIPS">
-      <source-position filename="seccomp.h" line="149"/>
-      <type name="gint" c:type="gint"/>
-    </constant>
-    <constant name="SCMP_ACT_ALLOW" value="2147418112" c:type="SCMP_ACT_ALLOW">
+    <constant name="ACT_ALLOW" value="2147418112" c:type="SCMP_ACT_ALLOW">
       <source-position filename="seccomp.h" line="335"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <function-macro name="SCMP_ACT_ERRNO"
+    <function-macro name="ACT_ERRNO"
                     c:identifier="SCMP_ACT_ERRNO"
                     introspectable="0">
       <source-position filename="seccomp.h" line="323"/>
@@ -63,23 +31,21 @@ and/or use gtk-doc annotations.  -->
         </parameter>
       </parameters>
     </function-macro>
-    <constant name="SCMP_ACT_KILL_PROCESS"
+    <constant name="ACT_KILL_PROCESS"
               value="2147483648"
               c:type="SCMP_ACT_KILL_PROCESS">
       <source-position filename="seccomp.h" line="307"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_ACT_KILL_THREAD"
-              value="0"
-              c:type="SCMP_ACT_KILL_THREAD">
+    <constant name="ACT_KILL_THREAD" value="0" c:type="SCMP_ACT_KILL_THREAD">
       <source-position filename="seccomp.h" line="311"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_ACT_LOG" value="2147221504" c:type="SCMP_ACT_LOG">
+    <constant name="ACT_LOG" value="2147221504" c:type="SCMP_ACT_LOG">
       <source-position filename="seccomp.h" line="331"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <function-macro name="SCMP_ACT_TRACE"
+    <function-macro name="ACT_TRACE"
                     c:identifier="SCMP_ACT_TRACE"
                     introspectable="0">
       <source-position filename="seccomp.h" line="327"/>
@@ -88,37 +54,64 @@ and/or use gtk-doc annotations.  -->
         </parameter>
       </parameters>
     </function-macro>
-    <constant name="SCMP_ACT_TRAP" value="196608" c:type="SCMP_ACT_TRAP">
+    <constant name="ACT_TRAP" value="196608" c:type="SCMP_ACT_TRAP">
       <source-position filename="seccomp.h" line="319"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_ARCH_NATIVE" value="0" c:type="SCMP_ARCH_NATIVE">
+    <constant name="ARCH_NATIVE" value="0" c:type="SCMP_ARCH_NATIVE">
       <source-position filename="seccomp.h" line="109"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_ARCH_X32" value="0" c:type="SCMP_ARCH_X32">
+    <constant name="ARCH_X32" value="0" c:type="SCMP_ARCH_X32">
       <source-position filename="seccomp.h" line="127"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <function-macro name="SCMP_SYS" c:identifier="SCMP_SYS" introspectable="0">
+    <function-macro name="SYS" c:identifier="SCMP_SYS" introspectable="0">
       <source-position filename="seccomp.h" line="198"/>
       <parameters>
         <parameter name="x">
         </parameter>
       </parameters>
     </function-macro>
-    <constant name="SCMP_VER_MAJOR" value="2" c:type="SCMP_VER_MAJOR">
+    <constant name="VER_MAJOR" value="2" c:type="SCMP_VER_MAJOR">
       <source-position filename="seccomp.h" line="39"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_VER_MICRO" value="3" c:type="SCMP_VER_MICRO">
+    <constant name="VER_MICRO" value="3" c:type="SCMP_VER_MICRO">
       <source-position filename="seccomp.h" line="41"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="SCMP_VER_MINOR" value="4" c:type="SCMP_VER_MINOR">
+    <constant name="VER_MINOR" value="4" c:type="SCMP_VER_MINOR">
       <source-position filename="seccomp.h" line="40"/>
       <type name="gint" c:type="gint"/>
     </constant>
+    <record name="_arg_cmp" c:type="scmp_arg_cmp">
+      <source-position filename="seccomp.h" line="100"/>
+      <field name="arg" writable="1">
+        <type name="guint" c:type="unsigned int"/>
+      </field>
+      <field name="op" writable="1">
+        <type name="gpointer" c:type="scmp_compare"/>
+      </field>
+      <field name="datum_a" writable="1">
+        <type name="datum_t" c:type="scmp_datum_t"/>
+      </field>
+      <field name="datum_b" writable="1">
+        <type name="datum_t" c:type="scmp_datum_t"/>
+      </field>
+    </record>
+    <record name="version" c:type="scmp_version">
+      <source-position filename="seccomp.h" line="47"/>
+      <field name="major" writable="1">
+        <type name="guint" c:type="unsigned int"/>
+      </field>
+      <field name="minor" writable="1">
+        <type name="guint" c:type="unsigned int"/>
+      </field>
+      <field name="micro" writable="1">
+        <type name="guint" c:type="unsigned int"/>
+      </field>
+    </record>
     <function name="api_get" c:identifier="seccomp_api_get">
       <source-position filename="seccomp.h" line="373"/>
       <return-value transfer-ownership="none">
@@ -143,7 +136,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="arch_token" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -157,7 +150,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="const scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="const scmp_filter_ctx"/>
         </parameter>
         <parameter name="arch_token" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -177,7 +170,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="arch_token" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -203,7 +196,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="const scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="const scmp_filter_ctx"/>
         </parameter>
         <parameter name="attr"
                    transfer-ownership="none"
@@ -223,7 +216,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="attr"
                    transfer-ownership="none"
@@ -243,7 +236,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="const scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="const scmp_filter_ctx"/>
         </parameter>
         <parameter name="fd" transfer-ownership="none">
           <type name="gint" c:type="int"/>
@@ -257,7 +250,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="const scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="const scmp_filter_ctx"/>
         </parameter>
         <parameter name="fd" transfer-ownership="none">
           <type name="gint" c:type="int"/>
@@ -267,7 +260,7 @@ and/or use gtk-doc annotations.  -->
     <function name="init" c:identifier="seccomp_init">
       <source-position filename="seccomp.h" line="394"/>
       <return-value transfer-ownership="none">
-        <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+        <type name="filter_ctx" c:type="scmp_filter_ctx"/>
       </return-value>
       <parameters>
         <parameter name="def_action" transfer-ownership="none">
@@ -282,7 +275,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="const scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="const scmp_filter_ctx"/>
         </parameter>
       </parameters>
     </function>
@@ -293,10 +286,10 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx_dst" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="ctx_src" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
       </parameters>
     </function>
@@ -307,7 +300,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
       </parameters>
     </function>
@@ -318,7 +311,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="def_action" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -334,7 +327,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="action" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -357,7 +350,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="action" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -385,7 +378,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="action" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -409,7 +402,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="action" transfer-ownership="none">
           <type name="guint32" c:type="uint32_t"/>
@@ -428,33 +421,6 @@ and/or use gtk-doc annotations.  -->
         </parameter>
       </parameters>
     </function>
-    <record name="scmp_arg_cmp" c:type="scmp_arg_cmp">
-      <source-position filename="seccomp.h" line="100"/>
-      <field name="arg" writable="1">
-        <type name="guint" c:type="unsigned int"/>
-      </field>
-      <field name="op" writable="1">
-        <type name="gpointer" c:type="scmp_compare"/>
-      </field>
-      <field name="datum_a" writable="1">
-        <type name="scmp_datum_t" c:type="scmp_datum_t"/>
-      </field>
-      <field name="datum_b" writable="1">
-        <type name="scmp_datum_t" c:type="scmp_datum_t"/>
-      </field>
-    </record>
-    <record name="scmp_version" c:type="scmp_version">
-      <source-position filename="seccomp.h" line="47"/>
-      <field name="major" writable="1">
-        <type name="guint" c:type="unsigned int"/>
-      </field>
-      <field name="minor" writable="1">
-        <type name="guint" c:type="unsigned int"/>
-      </field>
-      <field name="micro" writable="1">
-        <type name="guint" c:type="unsigned int"/>
-      </field>
-    </record>
     <function name="syscall_priority" c:identifier="seccomp_syscall_priority">
       <source-position filename="seccomp.h" line="594"/>
       <return-value transfer-ownership="none">
@@ -462,7 +428,7 @@ and/or use gtk-doc annotations.  -->
       </return-value>
       <parameters>
         <parameter name="ctx" transfer-ownership="none">
-          <type name="scmp_filter_ctx" c:type="scmp_filter_ctx"/>
+          <type name="filter_ctx" c:type="scmp_filter_ctx"/>
         </parameter>
         <parameter name="syscall" transfer-ownership="none">
           <type name="gint" c:type="int"/>
@@ -529,10 +495,10 @@ and/or use gtk-doc annotations.  -->
         </parameter>
       </parameters>
     </function>
-    <function name="version" c:identifier="seccomp_version">
+    <function name="get_version" c:identifier="seccomp_version">
       <source-position filename="seccomp.h" line="350"/>
       <return-value transfer-ownership="none" nullable="1">
-        <type name="gpointer" c:type="const scmp_version*"/>
+        <type name="version" c:type="const scmp_version*"/>
       </return-value>
     </function>
   </namespace>

@@ -20,16 +20,16 @@ rt.add_permission("com.expidus.storage.internal", {
     description = {
         en = "Allow access to interal (system) storage"
     },
-    default = function()
+    default = function(proc)
         if proc:get_user():is_admin() then
             return "allow"
         end
         return "deny"
     end,
     allow = function(proc)
-        proc:get_fs():bind(proc:get_user():get_homedir())
+        proc:get_fs():bind(proc:get_user().homedir)
     end,
-    deny = function()
-        proc:get_fs():unbind(proc:get_user():get_homedir())
+    deny = function(proc)
+        proc:get_fs():unbind(proc:get_user().homedir)
     end
 })

@@ -1,22 +1,27 @@
 namespace SystemRT {
     public class User {
         private DaemonSystemRT _daemon;
-        private int _uid;
+        private unowned Posix.Passwd _passwd;
 
-        public int uid {
+        public uint32 uid {
             get {
-                return this._uid;
+                return (uint32)this._passwd.pw_uid;
             }
         }
 
-        public User(DaemonSystemRT daemon, int uid) {
+        public User(DaemonSystemRT daemon, uint32 uid) throws Error {
             this._daemon = daemon;
-            this._uid = uid;
+
+            unowned var passwd = Posix.getpwuid(uid);
+            if (passwd == null) {
+                throw new Error.INVALID_USER("Failed to get passwd for user with id of %lu", uid);
+            }
+            this._passwd = passwd;
         }
 
         public bool is_admin() throws GLib.Error {
             var kf = this._daemon.get_config();
-            foreach (var val in kf.get_string_list("User/%d".printf(this._uid), "groups")) {
+            foreach (var val in kf.get_string_list("User/%lu".printf(this._passwd.pw_uid), "groups")) {
                 if (val == "admin") return true;
             }
             return false;
@@ -30,7 +35,19 @@ namespace SystemRT {
             lvm.raw_set(-3);
 
             lvm.push_string("uid");
-            lvm.push_integer(this._uid);
+            lvm.push_integer((int)this._passwd.pw_uid);
+            lvm.raw_set(-3);
+
+            lvm.push_string("gid");
+            lvm.push_integer((int)this._passwd.pw_gid);
+            lvm.raw_set(-3);
+
+            lvm.push_string("name");
+            lvm.push_string(this._passwd.pw_name);
+            lvm.raw_set(-3);
+
+            lvm.push_string("homedir");
+            lvm.push_string(this._passwd.pw_dir);
             lvm.raw_set(-3);
 
             lvm.push_string("is_admin");

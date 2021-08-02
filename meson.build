@@ -45,15 +45,13 @@ libsystemrt_dep = declare_dependency(link_with: libsystemrt)
 libsystemrt_daemon = static_library('systemrt-daemon', 'src/daemon/application.vala', 'src/daemon/client.vala', 'src/daemon/daemon.vala',
 	'src/daemon/process.vala', 'src/daemon/permission.vala', 'src/daemon/session.vala', 'src/daemon/user.vala', 'src/daemon/utils.vala',
 	vala_header: 'systemrt-daemon.h',
-	include_directories: include_directories('include'),
-	dependencies: [dependency('libdaemon'), dependency('devident-1.0'), meson.get_compiler('vala').find_library('linux'),
-		dependency('libseccomp'), lua, glib, gobject, gio, gdk, libsystemrt_dep])
+	dependencies: [dependency('libdaemon'), dependency('devident-1.0'), meson.get_compiler('vala').find_library('posix'),
+		dependency('libseccomp'), dependency('sqlite3'), lua, glib, gobject, gio, gdk, libsystemrt_dep])
 libsystemrt_daemon_dep = declare_dependency(link_with: libsystemrt_daemon)
 
 executable('systemrtd', 'src/daemon/process.c',
 	install: true,
-	include_directories: include_directories('include'),
-	dependencies: [glib, gobject, lua, libsystemrt_daemon_dep])
+	dependencies: [meson.get_compiler('c').find_library('cap'), glib, gobject, lua, gdk, libsystemrt_daemon_dep])
 
 install_data('data/com.expidus.SystemRT.conf', install_dir: join_paths(dbus.get_pkgconfig_variable('sysconfdir'), 'dbus-1', 'system.d'))
 configure_file(input: 'data/com.expidus.SystemRT.service.in', output: 'com.expidus.SystemRT.service',

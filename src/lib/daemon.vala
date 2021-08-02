@@ -1,10 +1,14 @@
 namespace SystemRT {
   public errordomain Error {
     FAILED_SESSION_OWN,
+    FAILED_DATABASE_ACTION,
+
     INVALID_SESSION,
     INVALID_CLIENT,
     INVALID_APP,
-    INVALID_PERM
+    INVALID_PERM,
+    INVALID_PROC,
+    INVALID_USER
   }
 
   [DBus(name = "com.expidus.SystemRT")]

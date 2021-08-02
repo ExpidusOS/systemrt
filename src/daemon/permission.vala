@@ -4,16 +4,16 @@ namespace SystemRT {
         DENY
     }
     
-    public delegate PermissionAction PermissionDefault(Client client);
-    public delegate void PermissionAllow(Client client);
-    public delegate void PermissionDeny(Client client);
+    public delegate PermissionAction PermissionDefault(Process proc);
+    public delegate void PermissionAllow(Process proc);
+    public delegate void PermissionDeny(Process proc);
 
     public class Permission {
         private string _id;
         private GLib.HashTable<string, string> _desc;
-        private PermissionAllow _allow;
-        private PermissionDeny _deny;
-        private PermissionDefault _default;
+        private unowned PermissionAllow _allow;
+        private unowned PermissionDeny _deny;
+        private unowned PermissionDefault _default;
 
         public string id {
             get {

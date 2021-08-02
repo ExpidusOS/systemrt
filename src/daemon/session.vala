@@ -25,6 +25,18 @@ namespace SystemRT {
       }
     }
 
+    public string? auth {
+      get {
+        return this._auth;
+      }
+    }
+
+    public Gdk.Display? disp {
+      get {
+        return this._disp;
+      }
+    }
+
     public Session(DaemonSystemRT systemrt, string sess_path) {
       this._systemrt = systemrt;
       this._sess_path = sess_path;
@@ -52,6 +64,13 @@ namespace SystemRT {
       return false;
     }
 
+    public Client? get_client_for_app_id(string id) throws GLib.Error {
+      foreach (var item in this._clients.get_values()) {
+        if (item.get_app_id() == id) return item;
+      }
+      return null;
+    }
+
     public Client get_client(GLib.BusName sender) {
       Client client = this._clients.get(sender);
       if (client == null) {
@@ -63,6 +82,20 @@ namespace SystemRT {
 
     public void remove_client(GLib.BusName client) {
       this._clients.remove(client);
+    }
+
+    public User? get_owner_user(out uint32 uid, out uint32 gid) {
+      uid = gid = 0;
+      if (this._owner_pid == 0) {
+        return null;
+      }
+
+      Posix.Stat buf = {};
+      if (Posix.stat("/proc/%lu".printf(this._owner_pid), out buf) < 0) return null;
+
+      uid = (int)buf.st_uid;
+      gid = (int)buf.st_gid;
+      return this._systemrt.get_user(uid);
     }
   }
 }

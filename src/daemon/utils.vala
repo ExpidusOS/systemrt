@@ -1,10 +1,4 @@
 namespace SystemRT {
-  public static uint32 get_pid_by_sender(GLib.DBusConnection conn, GLib.BusName sender) throws GLib.Error {
-    return conn.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus",
-      "GetConnectionUnixProcessID", new GLib.Variant("(s)", sender),
-      null, GLib.DBusCallFlags.NONE, -1, null).get_child_value(0).get_uint32();
-  }
-
   public static string[] get_cmdline(uint32 pid) throws GLib.Error {
     var proc = "";
     size_t proc_len = 0;

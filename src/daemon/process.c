@@ -1,5 +1,6 @@
 #include <systemrt-daemon.h>
 #include <seccomp.h>
+#include <sys/capability.h>
 
 /* Keep me in sync with the process Vala file */
 struct _SystemRTProcessPrivate {
@@ -15,6 +16,31 @@ G_DEFINE_QUARK(SystemRTProcess, systemrt_process);
         g_set_error(error, systemrt_process_quark(), -rc, "Failed to add rule \"" # syscall_name "\": %s", strerror(-rc)); \
         return FALSE; \
     }
+
+gboolean system_rt_process_load_caps(SystemRTProcess* self, guint32 uid, guint32 gid, GError** error) {
+    cap_t caps = cap_get_proc();
+    if (caps == NULL) {
+        g_set_error(error, systemrt_process_quark(), 0, "Failed to get capabilities");
+        return FALSE;
+    }
+
+    const gid_t groups[] = { gid };
+    if (cap_setgroups(gid, 1, groups) != 0) {
+        g_set_error(error, systemrt_process_quark(), 1, "Failed to setgid: %s", strerror(errno));
+        return FALSE;
+    }
+
+    if (cap_setuid(uid) != 0) {
+        g_set_error(error, systemrt_process_quark(), 1, "Failed to setuid: %s", strerror(errno));
+        return FALSE;
+    }
+
+    if (cap_set_mode(CAP_MODE_NOPRIV) != 0) {
+        g_set_error(error, systemrt_process_quark(), 1, "Failed to drop priviledged mode: %s", strerror(errno));
+        return FALSE;
+    }
+    return TRUE;
+}
 
 gboolean system_rt_process_load_seccomp(SystemRTProcess* self, GError** error) {
     int rc;
