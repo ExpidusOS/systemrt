@@ -9,6 +9,12 @@ namespace SystemRT {
             }
         }
 
+        public string homedir {
+            get {
+                return this._passwd.pw_dir;
+            }
+        }
+
         public User(DaemonSystemRT daemon, uint32 uid) throws Error {
             this._daemon = daemon;
 

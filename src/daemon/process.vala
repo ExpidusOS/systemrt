@@ -15,20 +15,27 @@ namespace SystemRT {
             this._daemon = daemon;
             this._session = session;
 
-            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.NONE /*STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE*/);
+            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE);
 
             if (this._session.auth != null) launcher.setenv("XAUTHORITY", this._session.auth, true);
             if (this._session.disp != null) launcher.setenv("DISPLAY", this._session.disp.get_name(), true);
 
-            launcher.set_child_setup(() => {
-                /* Update user and group */
-                uint32 uid;
-                uint32 gid;
-                if (session.get_owner_user(out uid, out gid) == null) {
-                    stderr.printf("%s: failed to get user for session\n", argv[0]);
-                    GLib.Process.exit(1);
-                }
+            launcher.unsetenv("DBUS_STARTER_ADDRESS");
+            launcher.unsetenv("DBUS_STARTER_BUS_TYPE");
+            launcher.unsetenv("SUDO_COMMAND");
+            launcher.unsetenv("SUDO_GID");
+            launcher.unsetenv("SUDO_UID");
+            launcher.unsetenv("SUDO_USER");
+            launcher.unsetenv("MAIL");
 
+            uint32 uid;
+            uint32 gid;
+            var user = session.get_owner_user(out uid, out gid);
+            if (user == null) throw new Error.INVALID_USER("Failed to get user for session");
+            
+            launcher.set_cwd(user.homedir);
+
+            launcher.set_child_setup(() => {
                 /* Load capabilities */
                 try {
                     this.load_caps(uid, gid);
