@@ -40,11 +40,12 @@ jobs:
     steps:
     - name: "Checkout repository: SystemRT"
       uses: actions/checkout@v2
+
     - name: "Checkout repository: devident"
       uses: actions/checkout@v2
       with:
-        repository: ExpidusOS/devident
-        path: ${GITHUB_WORKSPACE}/devident
+        repository: ExpidusOS/libdevident
+        path: ${GITHUB_WORKSPACE}/libdevident
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
@@ -72,9 +73,9 @@ jobs:
     
     - name: Build devident
       run: |
-        meson --prefix=/usr --buildtype=release devident devident/build
-        ninja -C devident/build
-        sudo ninja -C devident/build install
+        meson --prefix=/usr --buildtype=release devident libdevident/build
+        ninja -C libdevident/build
+        sudo ninja -C libdevident/build install
 
     - name: Build SystemRT
       uses: BSFishy/meson-build@v1.0.1
