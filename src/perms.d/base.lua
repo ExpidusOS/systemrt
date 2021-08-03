@@ -27,9 +27,9 @@ rt.add_permission("com.expidus.storage.internal", {
         return "deny"
     end,
     allow = function(proc)
-        proc:get_fs():bind(proc:get_user().homedir)
+        proc:get_fs():set_mode(proc:get_user().homedir, {"read"})
     end,
     deny = function(proc)
-        proc:get_fs():unbind(proc:get_user().homedir)
+        proc:get_fs():set_mode(proc:get_user().homedir, {})
     end
 })
