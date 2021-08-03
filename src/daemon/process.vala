@@ -4,6 +4,9 @@ namespace SystemRT {
         private GLib.Subprocess _proc;
         private Seccomp.filter_ctx _seccomp;
         private Session _session;
+        private GLib.List<PermissionRule?> _rules;
+        private User _user;
+        private string[] _argv;
 
         public uint32 pid {
             get {
@@ -14,8 +17,10 @@ namespace SystemRT {
         public Process(DaemonSystemRT daemon, Session session, string[] argv) throws GLib.Error {
             this._daemon = daemon;
             this._session = session;
+            this._rules = new GLib.List<PermissionRule?>();
+            this._argv = argv;
 
-            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE);
+            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.NONE /*STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE*/);
 
             if (this._session.auth != null) launcher.setenv("XAUTHORITY", this._session.auth, true);
             if (this._session.disp != null) launcher.setenv("DISPLAY", this._session.disp.get_name(), true);
@@ -30,10 +35,10 @@ namespace SystemRT {
 
             uint32 uid;
             uint32 gid;
-            var user = session.get_owner_user(out uid, out gid);
-            if (user == null) throw new Error.INVALID_USER("Failed to get user for session");
+            this._user = this._session.get_owner_user(out uid, out gid);
+            if (this._user == null) throw new Error.INVALID_USER("Failed to get user for session");
             
-            launcher.set_cwd(user.homedir);
+            launcher.set_cwd(this._user.homedir);
 
             launcher.set_child_setup(() => {
                 /* Load capabilities */
@@ -55,6 +60,12 @@ namespace SystemRT {
             });
             this._proc = launcher.spawnv(argv);
 
+            // TODO: read database
+            this._daemon.iterate_permissions((perm) => {
+                perm.@default(this);
+            });
+            this.update_apparmor();
+
             /*if (!this._proc.get_if_exited()) {
                 GLib.ChildWatch.add((GLib.Pid)this.pid, () => {
                     this.on_exit();
@@ -68,6 +79,47 @@ namespace SystemRT {
     
         private extern bool load_caps(uint32 uid, uint32 gid) throws GLib.Error;
         private extern bool load_seccomp() throws GLib.Error;
+
+        private void update_apparmor() {
+            string apparmor_profile = """
+profile user=%s %s {
+""".printf(this._user.name, this._argv[0]);
+
+            foreach (var rule in this._rules) {
+                switch (rule.category) {
+                    case PermissionCategory.FS:
+                        switch (rule.action) {
+                            case "mode":
+                                var path = rule.values[0] as string;
+                                var mode = "";
+                                for (var i = 1; i < rule.values.length; i++) {
+                                    var v = rule.values[i] as string;
+                                    if (v == null) continue;
+                                    switch (v) {
+                                        case "read":
+                                            mode += "r";
+                                            break;
+                                        case "write":
+                                            mode += "w";
+                                            break;
+                                        case "exec":
+                                            mode += "x";
+                                            break;
+                                        case "link":
+                                            mode += "l";
+                                            break;
+                                    }
+                                }
+
+                                apparmor_profile += "\t" + (mode.length == 0 ? "deny " : "") + path + " " + mode + ",\n";
+                                break;
+                        }
+                        break;
+                }
+            }
+
+            apparmor_profile += "}";
+        }
 
         public void to_lua(Lua.LuaVM lvm) {
             lvm.new_table();
@@ -133,18 +185,61 @@ namespace SystemRT {
 
                 lvm.push_string("set_mode");
                 lvm.push_cfunction((lvm) => {
-                    return 0;
-                });
-                lvm.raw_set(-3);
+                    if (lvm.get_top() != 3) {
+                        lvm.push_literal("Expecting 3 arguments");
+                        lvm.error();
+                        return 0;
+                    }
 
-                lvm.push_string("bind");
-                lvm.push_cfunction((lvm) => {
-                    return 0;
-                });
-                lvm.raw_set(-3);
+                    if (lvm.type(1) != Lua.Type.TABLE) {
+                        lvm.push_literal("Invalid argument: expected an instance of process filesystem");
+                        lvm.error();
+                        return 0;
+                    }
 
-                lvm.push_string("unbind");
-                lvm.push_cfunction((lvm) => {
+                    if (lvm.type(2) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(3) != Lua.Type.TABLE) {
+                        lvm.push_literal("Invalid argument: expected a table array");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    lvm.get_field(1, "__ptr");
+                    Process s = (Process)lvm.to_userdata(4);
+
+                    GLib.Value[] values = {};
+                    values += lvm.to_string(2);
+
+                    lvm.push_nil();
+                    while (lvm.next(3) != 0) {
+                        var mode = lvm.to_string(3);
+                        switch (mode) {
+                            case "read":
+                            case "write":
+                            case "exec":
+                            case "link":
+                                values += mode;
+                                break;
+                            default:
+                                lvm.push_literal("Invalid mode type");
+                                lvm.error();
+                                lvm.pop(1);
+                                return 0;
+                        }
+                        lvm.pop(1);
+                    }
+
+                    PermissionRule rule = {
+                        PermissionCategory.FS,
+                        "mode",
+                        values
+                    };
+                    s._rules.append(rule);
                     return 0;
                 });
                 lvm.raw_set(-3);

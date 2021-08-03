@@ -3,6 +3,10 @@ namespace SystemRT {
         ALLOW,
         DENY
     }
+
+    public enum PermissionCategory {
+        FS
+    }
     
     public delegate PermissionAction PermissionDefault(Process proc);
     public delegate void PermissionAllow(Process proc);
@@ -32,5 +36,31 @@ namespace SystemRT {
         public void set_desc(string lang, string val) {
             this._desc.set(lang, val);
         }
+
+        public void allow(Process proc) {
+            this._allow(proc);
+        }
+
+        public void deny(Process proc) {
+            this._deny(proc);
+        }
+
+        public void @default(Process proc) {
+            var act = this._default(proc);
+            switch (act) {
+                case PermissionAction.ALLOW:
+                    this._allow(proc);
+                    break;
+                case PermissionAction.DENY:
+                    this._deny(proc);
+                    break;
+            }
+        }
+    }
+
+    public struct PermissionRule {
+        public PermissionCategory category;
+        public string? action;
+        public GLib.Value[] values;
     }
 }

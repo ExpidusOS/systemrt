@@ -9,6 +9,12 @@ namespace SystemRT {
             }
         }
 
+        public string name {
+            get {
+                return this._passwd.pw_name;
+            }
+        }
+
         public string homedir {
             get {
                 return this._passwd.pw_dir;

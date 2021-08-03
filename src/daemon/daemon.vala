@@ -8,6 +8,8 @@ namespace SystemRT {
     { null }
   };
 
+  public delegate void PermissionIter(Permission perm);
+
   [DBus(name = "com.expidus.SystemRT")]
   public class DaemonSystemRT : GLib.Object {
     private GLib.HashTable<string, Application> _apps;
@@ -121,13 +123,13 @@ namespace SystemRT {
         }
 
         lvm.get_field(2, "allow");
-
         if (lvm.type(5) != Lua.Type.FUNCTION) {
           lvm.push_literal("Invalid type for field \"allow\": expected a function");
           lvm.error();
           return 0;
         }
-        var allow = lvm.to_cfunction(5);
+        lvm.push_value(5);
+        var allow = lvm.reference(Lua.PseudoIndex.REGISTRY);
 
         lvm.get_field(2, "deny");
         if (lvm.type(6) != Lua.Type.FUNCTION) {
@@ -135,7 +137,8 @@ namespace SystemRT {
           lvm.error();
           return 0;
         }
-        var deny = lvm.to_cfunction(6);
+        lvm.push_value(6);
+        var deny = lvm.reference(Lua.PseudoIndex.REGISTRY);
 
         lvm.get_field(2, "default");
         if (lvm.type(7) != Lua.Type.FUNCTION) {
@@ -143,15 +146,24 @@ namespace SystemRT {
           lvm.error();
           return 0;
         }
-        var def = lvm.to_cfunction(7);
+        lvm.push_value(7);
+        var def = lvm.reference(Lua.PseudoIndex.REGISTRY);
 
+        // FIXME: segment faults, how do I fix
         var perm = new Permission(id, (client) => {
-          allow(lvm);
+          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, allow);
+          client.to_lua(lvm);
+          lvm.pcall(1, 0, 0);
         }, (client) => {
-          deny(lvm);
+          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, deny);
+          client.to_lua(lvm);
+          lvm.pcall(1, 0, 0);
         }, (client) => {
-          def(lvm);
-          var r = lvm.to_string(-1);
+          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, def);
+          client.to_lua(lvm);
+          lvm.pcall(1, 1, 0);
+
+          var r = lvm.to_string(2);
           switch (r) {
             case "allow":
               return PermissionAction.ALLOW;
@@ -203,6 +215,11 @@ namespace SystemRT {
 
     ~DaemonSystemRT() {
       this._conn.signal_unsubscribe(this._name_lost_id);
+    }
+
+    [DBus(visible = false)]
+    public void iterate_permissions(PermissionIter cb) {
+      this._perms.@foreach((key, perm) => cb(perm));
     }
 
     [DBus(visible = false)]
