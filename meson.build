@@ -14,13 +14,18 @@ lua_possible_names = [
   'lua5.1', 'lua51',
   'luajit'
 ]
+lua_found = false
 
 foreach name : lua_possible_names
 	if not lua_found
 		lua = dependency(name, required: false)
-		lua_found = lua_dep.found()
+		lua_found = lua.found()
 	endif
 endforeach
+
+if not lua_found
+	error('Failed to find a compatible Lua version')
+endif
 
 sysconfdir = get_option('sysconfdir')
 prefix = get_option('prefix')
