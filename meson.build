@@ -6,26 +6,7 @@ gdk = dependency('gdk-3.0')
 glib = dependency('glib-2.0')
 gobject = dependency('gobject-2.0')
 gio = [dependency('gio-2.0'), dependency('gio-unix-2.0')]
-
-lua_possible_names = [
-  'lua',
-  'lua5.3', 'lua53',
-  'lua5.2', 'lua52',
-  'lua5.1', 'lua51',
-  'luajit'
-]
-lua_found = false
-
-foreach name : lua_possible_names
-	if not lua_found
-		lua = dependency(name, required: false)
-		lua_found = lua.found()
-	endif
-endforeach
-
-if not lua_found
-	error('Failed to find a compatible Lua version')
-endif
+lua = dependency('lua')
 
 sysconfdir = get_option('sysconfdir')
 prefix = get_option('prefix')
