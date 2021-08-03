@@ -73,6 +73,7 @@ jobs:
     
     - name: Build devident
       run: |
+        ls "${GITHUB_WORKSPACE}/libdevident"
         meson --prefix=/usr --buildtype=release "${GITHUB_WORKSPACE}/libdevident/build" "${GITHUB_WORKSPACE}/libdevident"
         ninja -C "${GITHUB_WORKSPACE}/libdevident/build"
         sudo ninja -C "${GITHUB_WORKSPACE}/libdevident/build" install
