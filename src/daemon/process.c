@@ -8,6 +8,7 @@ struct _SystemRTProcessPrivate {
 	SystemRTDaemonSystemRT* _daemon;
 	GSubprocess* _proc;
 	scmp_filter_ctx _seccomp;
+	SystemRTSession* _session;
 };
 
 G_DEFINE_QUARK(SystemRTProcess, systemrt_process);
@@ -77,6 +78,8 @@ gboolean system_rt_process_load_seccomp(SystemRTProcess* self, GError** error) {
     add_rule(mount, 0)
     add_rule(umount2, 0)
     add_rule(quotactl, 0)
+
+    // TODO: block networking stuff and allow X11/Wayland access
 
     rc = seccomp_load(self->priv->_seccomp);
     if (rc < 0) {
