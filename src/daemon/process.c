@@ -1,6 +1,7 @@
 #include <systemrt-daemon.h>
 #include <seccomp.h>
 #include <sys/capability.h>
+#include <errno.h>
 
 /* Keep me in sync with the process Vala file */
 struct _SystemRTProcessPrivate {
