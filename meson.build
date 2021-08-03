@@ -6,7 +6,28 @@ gdk = dependency('gdk-3.0')
 glib = dependency('glib-2.0')
 gobject = dependency('gobject-2.0')
 gio = [dependency('gio-2.0'), dependency('gio-unix-2.0')]
-lua = dependency('lua')
+
+lua_possible_names = [
+  'lua',
+  'lua5.3', 'lua53',
+  'lua5.2', 'lua52',
+  'lua5.1', 'lua51',
+  'luajit'
+]
+lua_found = false
+
+foreach name : lua_possible_names
+	if not lua_found
+		lua_dep = meson.get_compiler('c').find_library(name, required: false)
+		lua_found = lua_dep.found()
+	endif
+endforeach
+
+if not lua_found
+	error('Failed to find a compatible Lua version')
+endif
+
+lua = [meson.get_compiler('vala').find_library('lua'), lua_dep]
 
 sysconfdir = get_option('sysconfdir')
 prefix = get_option('prefix')
