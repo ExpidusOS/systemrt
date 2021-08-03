@@ -73,9 +73,9 @@ jobs:
     
     - name: Build devident
       run: |
-        meson --prefix=/usr --buildtype=release libdevident libdevident/build
-        ninja -C libdevident/build
-        sudo ninja -C libdevident/build install
+        meson --prefix=/usr --buildtype=release "${GITHUB_WORKSPACE}/libdevident" "${GITHUB_WORKSPACE}/libdevident/build"
+        ninja -C "${GITHUB_WORKSPACE}/libdevident/build"
+        sudo ninja -C "${GITHUB_WORKSPACE}/libdevident/build" install
 
     - name: Build SystemRT
       uses: BSFishy/meson-build@v1.0.1
