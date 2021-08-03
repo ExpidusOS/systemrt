@@ -30,7 +30,7 @@ endif
 sysconfdir = get_option('sysconfdir')
 prefix = get_option('prefix')
 
-if sysconfdir.substring(0, 1) != '/'
+if not sysconfdir.startswith('/')
 	sysconfdir = prefix + '/' + sysconfdir
 endif
 
