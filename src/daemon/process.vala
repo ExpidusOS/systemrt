@@ -111,7 +111,7 @@ profile user=%s %s {
                                     }
                                 }
 
-                                apparmor_profile += "\t" + (mode.length == 0 ? "deny " : "") + path + " " + mode + ",\n";
+                                apparmor_profile += "\t" + (mode.length == 0 ? "deny " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
                                 break;
                         }
                         break;
@@ -119,6 +119,8 @@ profile user=%s %s {
             }
 
             apparmor_profile += "}";
+
+            stdout.printf("%s\n", apparmor_profile);
         }
 
         public void to_lua(Lua.LuaVM lvm) {

@@ -9,10 +9,10 @@ rt.add_permission("com.expidus.storage.external", {
         return "deny"
     end,
     allow = function(proc)
-        proc:get_fs():set_mode("/mnt", 36)
+        proc:get_fs():set_mode("/mnt", {"read", "write"})
     end,
     deny = function(proc)
-        proc:get_fs():set_mode("/mnt", 0)
+        proc:get_fs():set_mode("/mnt", {})
     end
 })
 
@@ -31,5 +31,25 @@ rt.add_permission("com.expidus.storage.internal", {
     end,
     deny = function(proc)
         proc:get_fs():set_mode(proc:get_user().homedir, {})
+    end
+})
+
+rt.add_permission("com.epxidus.storage.system", {
+    description = {
+        en = "Allow access to system storage"
+    },
+    default = function(proc)
+        if proc:get_user():is_admin() then
+            return "allow"
+        end
+        return "deny"
+    end,
+    allow = function(proc)
+        proc:get_fs():set_mode("/boot", {"read", "write"})
+        proc:get_fs():set_mode("/var/log", {"read", "write"})
+    end,
+    deny = function(proc)
+        proc:get_fs():set_mode("/boot", {"read"})
+        proc:get_fs():set_mode("/var/log", {})
     end
 })
