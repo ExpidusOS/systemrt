@@ -62,7 +62,7 @@ namespace SystemRT {
 
             // TODO: read database
             this._daemon.iterate_permissions((perm) => {
-                perm.@default(this);
+                perm.def(this);
             });
             this.update_apparmor();
 
@@ -159,6 +159,7 @@ profile user=%s %s {
                 user.to_lua(lvm);
                 return 1;
             });
+            lvm.raw_set(-3);
 
             lvm.push_string("get_fs");
             lvm.push_cfunction((lvm) => {

@@ -149,29 +149,7 @@ namespace SystemRT {
         lvm.push_value(7);
         var def = lvm.reference(Lua.PseudoIndex.REGISTRY);
 
-        // FIXME: segment faults, how do I fix
-        var perm = new Permission(id, (client) => {
-          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, allow);
-          client.to_lua(lvm);
-          lvm.pcall(1, 0, 0);
-        }, (client) => {
-          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, deny);
-          client.to_lua(lvm);
-          lvm.pcall(1, 0, 0);
-        }, (client) => {
-          lvm.raw_geti(Lua.PseudoIndex.REGISTRY, def);
-          client.to_lua(lvm);
-          lvm.pcall(1, 1, 0);
-
-          var r = lvm.to_string(2);
-          switch (r) {
-            case "allow":
-              return PermissionAction.ALLOW;
-            case "deny":
-            default:
-              return PermissionAction.DENY;
-          }
-        });
+        var perm = new LuaPermission(lvm, id, allow, deny, def);
 
         lvm.get_field(2, "description");
         if (lvm.type(8) != Lua.Type.TABLE) {
