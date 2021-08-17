@@ -80,10 +80,38 @@ namespace SystemRT {
         private extern bool load_caps(uint32 uid, uint32 gid) throws GLib.Error;
         private extern bool load_seccomp() throws GLib.Error;
 
-        private void update_apparmor() {
-            string apparmor_profile = """
+        private void update_apparmor() throws GLib.FileError {
+            string apparmor_profile = """#include <tunables/global>
 profile user=%s %s {
-""".printf(this._user.name, this._argv[0]);
+    #include <abstractions/base>
+    #include <abstractions/consoles>
+    #include <abstractions/dbus>
+    #include <abstractions/fonts>
+    #include <abstractions/gnome>
+    #include <abstractions/mesa>
+    #include <abstractions/nvidia>
+    #include <abstractions/vulkan>
+    #include <abstractions/wayland>
+    #include <abstractions/X>
+
+    /dev/ptmx rw,
+    /etc/group r,
+    /etc/nsswitch.conf r,
+    /etc/passwd r,
+    %s r,
+    /usr/bin/nvidia-modprobe mrix,
+    /var/cache/fontconfig/ w,
+    /proc/modules r,
+    /sys/bus/pci/devices/ r,
+    owner @{HOME}/.cache/nvidia/GLCache/ rwk,
+    owner @{HOME}/.cache/nvidia/GLCache/** rwk,
+    owner @{HOME}/.config/** rw,
+    owner /proc/*/comm r,
+    owner /usr/share/fonts/** rw,
+    owner /run/user/%lu/gdm/Xauthority r,
+    /{usr/,}bin/ mrix,
+    /tmp rw,
+""".printf(this._user.name, this._argv[0], this._argv[0], this._user.uid);
 
             foreach (var rule in this._rules) {
                 switch (rule.category) {
@@ -91,8 +119,9 @@ profile user=%s %s {
                         switch (rule.action) {
                             case "mode":
                                 var path = rule.values[0] as string;
+                                var enforce = rule.values[1] as string;
                                 var mode = "";
-                                for (var i = 1; i < rule.values.length; i++) {
+                                for (var i = 2; i < rule.values.length; i++) {
                                     var v = rule.values[i] as string;
                                     if (v == null) continue;
                                     switch (v) {
@@ -111,7 +140,7 @@ profile user=%s %s {
                                     }
                                 }
 
-                                apparmor_profile += "\t" + (mode.length == 0 ? "deny " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
+                                apparmor_profile += "\t" + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
                                 break;
                         }
                         break;
@@ -120,7 +149,8 @@ profile user=%s %s {
 
             apparmor_profile += "}";
 
-            stdout.printf("%s\n", apparmor_profile);
+            var path = SYSCONFDIR + "/apparmor.d/systemrt-%lu-%s".printf(this._user.uid, this._argv[0].substring(1).replace("/", "."));
+            GLib.FileUtils.set_contents(path, apparmor_profile);
         }
 
         public void to_lua(Lua.LuaVM lvm) {
@@ -188,8 +218,8 @@ profile user=%s %s {
 
                 lvm.push_string("set_mode");
                 lvm.push_cfunction((lvm) => {
-                    if (lvm.get_top() != 3) {
-                        lvm.push_literal("Expecting 3 arguments");
+                    if (lvm.get_top() < 3) {
+                        lvm.push_literal("Expecting at least 3 arguments");
                         lvm.error();
                         return 0;
                     }
@@ -206,35 +236,49 @@ profile user=%s %s {
                         return 0;
                     }
 
-                    if (lvm.type(3) != Lua.Type.TABLE) {
-                        lvm.push_literal("Invalid argument: expected a table array");
-                        lvm.error();
-                        return 0;
-                    }
-
                     lvm.get_field(1, "__ptr");
-                    Process s = (Process)lvm.to_userdata(4);
+                    Process s = (Process)lvm.to_userdata(lvm.get_top());
 
                     GLib.Value[] values = {};
                     values += lvm.to_string(2);
 
-                    lvm.push_nil();
-                    while (lvm.next(3) != 0) {
-                        var mode = lvm.to_string(3);
-                        switch (mode) {
-                            case "read":
-                            case "write":
-                            case "exec":
-                            case "link":
-                                values += mode;
-                                break;
-                            default:
-                                lvm.push_literal("Invalid mode type");
-                                lvm.error();
-                                lvm.pop(1);
-                                return 0;
+                    for (var i = 3; i < lvm.get_top(); i++) {
+                        if (lvm.is_string(i)) {
+                            var mode = lvm.to_string(i);
+                            switch (mode) {
+                                case "read":
+                                case "write":
+                                case "exec":
+                                case "link":
+                                    values += mode;
+                                    break;
+                                default:
+                                    if (i == 3) {
+                                        switch (mode) {
+                                            case "deny":
+                                            case "allow":
+                                                values += mode;
+                                                break;
+                                            default:
+                                                lvm.pop(1);
+                                                lvm.push_literal("Invalid enforce type");
+                                                lvm.error();
+                                                return 0;
+                                        }
+                                    } else {
+                                        lvm.pop(1);
+                                        lvm.push_literal("Invalid mode type");
+                                        lvm.error();
+                                        return 0;
+                                    }
+                                    break;
+                            }
+                        } else {
+                            lvm.pop(1);
+                            lvm.push_literal("Invalid type: excepted string");
+                            lvm.error();
+                            return 0;
                         }
-                        lvm.pop(1);
                     }
 
                     PermissionRule rule = {

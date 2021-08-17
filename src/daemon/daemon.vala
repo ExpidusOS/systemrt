@@ -32,6 +32,8 @@ namespace SystemRT {
     public DaemonSystemRT(GLib.MainLoop loop, GLib.DBusConnection conn) throws GLib.Error {
       Object();
 
+      if (AppArmor.is_enabled() != 1) throw new Error.APPARMOR_ERROR("AppArmor is required for SystemRT to function, please enable it. (%s)", Posix.strerror(Posix.errno));
+
       GLib.DirUtils.create_with_parents(LOCALSTATEDIR + "/run/expidus/runtime", 292);
       GLib.DirUtils.create_with_parents(LOCALSTATEDIR + "/db/expidus/runtime", 292);
 

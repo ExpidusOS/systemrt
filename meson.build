@@ -72,7 +72,7 @@ libsystemrt_daemon = static_library('systemrt-daemon', 'src/daemon/application.v
 	'src/daemon/process.vala', 'src/daemon/permission.vala', 'src/daemon/session.vala', 'src/daemon/user.vala', 'src/daemon/utils.vala',
 	c_args: lua_cflags,
 	vala_header: 'systemrt-daemon.h',
-	dependencies: [dependency('libdaemon'), dependency('devident-1.0'), meson.get_compiler('vala').find_library('posix'),
+	dependencies: [dependency('libdaemon'), dependency('devident-1.0'), dependency('libapparmor'), meson.get_compiler('vala').find_library('posix'),
 		dependency('libseccomp'), dependency('sqlite3'), lua, glib, gobject, gio, gdk, libsystemrt_dep])
 libsystemrt_daemon_dep = declare_dependency(link_with: libsystemrt_daemon)
 

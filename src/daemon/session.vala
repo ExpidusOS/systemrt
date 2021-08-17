@@ -93,8 +93,8 @@ namespace SystemRT {
       Posix.Stat buf = {};
       if (Posix.stat("/proc/%lu".printf(this._owner_pid), out buf) < 0) return null;
 
-      uid = (int)buf.st_uid;
-      gid = (int)buf.st_gid;
+      uid = (uint32)buf.st_uid;
+      gid = (uint32)buf.st_gid;
       return this._systemrt.get_user(uid);
     }
   }

@@ -1,0 +1,1194 @@
+<?xml version="1.0"?>
+<!-- This file was automatically generated from C sources - DO NOT EDIT!
+To affect the contents of this file, edit the original C definitions,
+and/or use gtk-doc annotations.  -->
+<repository version="1.2"
+            xmlns="http://www.gtk.org/introspection/core/1.0"
+            xmlns:c="http://www.gtk.org/introspection/c/1.0"
+            xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
+  <namespace name="AppArmor"
+             shared-library="libapparmor.so.1"
+             c:identifier-prefixes="aa_"
+             c:symbol-prefixes="aa_">
+    <constant name="CLASS_DBUS" value="32" c:type="AA_CLASS_DBUS">
+      <source-position filename="apparmor.h" line="35"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="CLASS_FILE" value="2" c:type="AA_CLASS_FILE">
+      <source-position filename="apparmor.h" line="34"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="DBUS_BIND" value="64" c:type="AA_DBUS_BIND">
+      <source-position filename="apparmor.h" line="63"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="DBUS_EAVESDROP" value="32" c:type="AA_DBUS_EAVESDROP">
+      <source-position filename="apparmor.h" line="62"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="DBUS_RECEIVE" value="4" c:type="AA_DBUS_RECEIVE">
+      <source-position filename="apparmor.h" line="61"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="DBUS_SEND" value="2" c:type="AA_DBUS_SEND">
+      <source-position filename="apparmor.h" line="60"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="EXEC_MMAP" value="65536" c:type="AA_EXEC_MMAP">
+      <source-position filename="apparmor.h" line="54"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_APPEND" value="8" c:type="AA_MAY_APPEND">
+      <source-position filename="apparmor.h" line="42"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_CHANGE_PROFILE"
+              value="1073741824"
+              c:type="AA_MAY_CHANGE_PROFILE">
+      <source-position filename="apparmor.h" line="57"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_CHMOD" value="4096" c:type="AA_MAY_CHMOD">
+      <source-position filename="apparmor.h" line="51"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_CHOWN" value="8192" c:type="AA_MAY_CHOWN">
+      <source-position filename="apparmor.h" line="52"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_CREATE" value="16" c:type="AA_MAY_CREATE">
+      <source-position filename="apparmor.h" line="43"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_DELETE" value="32" c:type="AA_MAY_DELETE">
+      <source-position filename="apparmor.h" line="44"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_EXEC" value="1" c:type="AA_MAY_EXEC">
+      <source-position filename="apparmor.h" line="39"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_GETATTR" value="512" c:type="AA_MAY_GETATTR">
+      <source-position filename="apparmor.h" line="48"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_GETCRED" value="2048" c:type="AA_MAY_GETCRED">
+      <source-position filename="apparmor.h" line="50"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_LINK" value="262144" c:type="AA_MAY_LINK">
+      <source-position filename="apparmor.h" line="55"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_LOCK" value="32768" c:type="AA_MAY_LOCK">
+      <source-position filename="apparmor.h" line="53"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_ONEXEC" value="536870912" c:type="AA_MAY_ONEXEC">
+      <source-position filename="apparmor.h" line="56"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_OPEN" value="64" c:type="AA_MAY_OPEN">
+      <source-position filename="apparmor.h" line="45"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_READ" value="4" c:type="AA_MAY_READ">
+      <source-position filename="apparmor.h" line="41"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_RENAME" value="128" c:type="AA_MAY_RENAME">
+      <source-position filename="apparmor.h" line="46"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_SETATTR" value="256" c:type="AA_MAY_SETATTR">
+      <source-position filename="apparmor.h" line="47"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_SETCRED" value="1024" c:type="AA_MAY_SETCRED">
+      <source-position filename="apparmor.h" line="49"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="MAY_WRITE" value="2" c:type="AA_MAY_WRITE">
+      <source-position filename="apparmor.h" line="40"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <constant name="QUERY_CMD_LABEL" value="label" c:type="AA_QUERY_CMD_LABEL">
+      <source-position filename="apparmor.h" line="104"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="VALID_DBUS_PERMS" value="0" c:type="AA_VALID_DBUS_PERMS">
+      <source-position filename="apparmor.h" line="64"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <function name="change_hat" c:identifier="aa_change_hat">
+      <source-position filename="apparmor.h" line="79"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="subprofile" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="magic_token" transfer-ownership="none">
+          <type name="gulong" c:type="unsigned long"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="change_hat_vargs"
+              c:identifier="aa_change_hat_vargs"
+              introspectable="0">
+      <source-position filename="apparmor.h" line="84"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="token" transfer-ownership="none">
+          <type name="gulong" c:type="unsigned long"/>
+        </parameter>
+        <parameter name="count" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="..." transfer-ownership="none">
+          <varargs/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="change_hatv" c:identifier="aa_change_hatv">
+      <source-position filename="apparmor.h" line="83"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="subprofiles" transfer-ownership="none">
+          <type name="utf8" c:type="const char**"/>
+        </parameter>
+        <parameter name="token" transfer-ownership="none">
+          <type name="gulong" c:type="unsigned long"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="change_onexec" c:identifier="aa_change_onexec">
+      <source-position filename="apparmor.h" line="81"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="profile" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="change_profile" c:identifier="aa_change_profile">
+      <source-position filename="apparmor.h" line="80"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="profile" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <record name="features" c:type="aa_features" disguised="1">
+      <source-position filename="apparmor.h" line="146"/>
+      <method name="id" c:identifier="aa_features_id">
+        <source-position filename="apparmor.h" line="161"/>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="is_equal" c:identifier="aa_features_is_equal">
+        <source-position filename="apparmor.h" line="158"/>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="_Bool"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features1" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+          <parameter name="features2" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="ref" c:identifier="aa_features_ref" introspectable="0">
+        <source-position filename="apparmor.h" line="152"/>
+        <return-value>
+          <type name="features" c:type="aa_features*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="supports" c:identifier="aa_features_supports">
+        <source-position filename="apparmor.h" line="160"/>
+        <return-value transfer-ownership="none">
+          <type name="gboolean" c:type="_Bool"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+          <parameter name="str" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="unref" c:identifier="aa_features_unref">
+        <source-position filename="apparmor.h" line="153"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="value" c:identifier="aa_features_value">
+        <source-position filename="apparmor.h" line="162"/>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+          <parameter name="str" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="len" transfer-ownership="none">
+            <type name="gsize" c:type="size_t*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="write_to_fd" c:identifier="aa_features_write_to_fd">
+        <source-position filename="apparmor.h" line="155"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+          <parameter name="fd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="write_to_file" c:identifier="aa_features_write_to_file">
+        <source-position filename="apparmor.h" line="156"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </instance-parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <function name="new" c:identifier="aa_features_new">
+        <source-position filename="apparmor.h" line="147"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features**"/>
+          </parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="new_from_file" c:identifier="aa_features_new_from_file">
+        <source-position filename="apparmor.h" line="148"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features**"/>
+          </parameter>
+          <parameter name="file" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="new_from_kernel"
+                c:identifier="aa_features_new_from_kernel">
+        <source-position filename="apparmor.h" line="151"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features**"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="new_from_string"
+                c:identifier="aa_features_new_from_string">
+        <source-position filename="apparmor.h" line="149"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="features" transfer-ownership="none">
+            <type name="features" c:type="aa_features**"/>
+          </parameter>
+          <parameter name="string" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="size" transfer-ownership="none">
+            <type name="gsize" c:type="size_t"/>
+          </parameter>
+        </parameters>
+      </function>
+    </record>
+    <function name="features_new"
+              c:identifier="aa_features_new"
+              moved-to="features.new">
+      <source-position filename="apparmor.h" line="147"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="features" transfer-ownership="none">
+          <type name="features" c:type="aa_features**"/>
+        </parameter>
+        <parameter name="dirfd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="features_new_from_file"
+              c:identifier="aa_features_new_from_file"
+              moved-to="features.new_from_file">
+      <source-position filename="apparmor.h" line="148"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="features" transfer-ownership="none">
+          <type name="features" c:type="aa_features**"/>
+        </parameter>
+        <parameter name="file" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="features_new_from_kernel"
+              c:identifier="aa_features_new_from_kernel"
+              moved-to="features.new_from_kernel">
+      <source-position filename="apparmor.h" line="151"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="features" transfer-ownership="none">
+          <type name="features" c:type="aa_features**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="features_new_from_string"
+              c:identifier="aa_features_new_from_string"
+              moved-to="features.new_from_string">
+      <source-position filename="apparmor.h" line="149"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="features" transfer-ownership="none">
+          <type name="features" c:type="aa_features**"/>
+        </parameter>
+        <parameter name="string" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="size" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="find_mountpoint" c:identifier="aa_find_mountpoint">
+      <source-position filename="apparmor.h" line="70"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="mnt" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="getcon" c:identifier="aa_getcon">
+      <source-position filename="apparmor.h" line="97"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="getpeercon" c:identifier="aa_getpeercon">
+      <source-position filename="apparmor.h" line="99"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="fd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="getpeercon_raw" c:identifier="aa_getpeercon_raw">
+      <source-position filename="apparmor.h" line="98"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="fd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="buf" transfer-ownership="none">
+          <type name="utf8" c:type="char*"/>
+        </parameter>
+        <parameter name="len" transfer-ownership="none">
+          <type name="gint32" c:type="socklen_t*"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="getprocattr" c:identifier="aa_getprocattr">
+      <source-position filename="apparmor.h" line="94"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="tid" transfer-ownership="none">
+          <type name="gint" c:type="pid_t"/>
+        </parameter>
+        <parameter name="attr" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="getprocattr_raw" c:identifier="aa_getprocattr_raw">
+      <source-position filename="apparmor.h" line="92"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="tid" transfer-ownership="none">
+          <type name="gint" c:type="pid_t"/>
+        </parameter>
+        <parameter name="attr" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="buf" transfer-ownership="none">
+          <type name="utf8" c:type="char*"/>
+        </parameter>
+        <parameter name="len" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="gettaskcon" c:identifier="aa_gettaskcon">
+      <source-position filename="apparmor.h" line="96"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="target" transfer-ownership="none">
+          <type name="gint" c:type="pid_t"/>
+        </parameter>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="is_enabled" c:identifier="aa_is_enabled">
+      <source-position filename="apparmor.h" line="69"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+    </function>
+    <record name="kernel_interface" c:type="aa_kernel_interface" disguised="1">
+      <source-position filename="apparmor.h" line="164"/>
+      <method name="load_policy"
+              c:identifier="aa_kernel_interface_load_policy">
+        <source-position filename="apparmor.h" line="171"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="buffer" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="size" transfer-ownership="none">
+            <type name="gsize" c:type="size_t"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="load_policy_from_fd"
+              c:identifier="aa_kernel_interface_load_policy_from_fd">
+        <source-position filename="apparmor.h" line="176"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="fd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="load_policy_from_file"
+              c:identifier="aa_kernel_interface_load_policy_from_file">
+        <source-position filename="apparmor.h" line="173"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="ref"
+              c:identifier="aa_kernel_interface_ref"
+              introspectable="0">
+        <source-position filename="apparmor.h" line="168"/>
+        <return-value>
+          <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="remove_policy"
+              c:identifier="aa_kernel_interface_remove_policy">
+        <source-position filename="apparmor.h" line="185"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="fqname" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="replace_policy"
+              c:identifier="aa_kernel_interface_replace_policy">
+        <source-position filename="apparmor.h" line="178"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="buffer" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="size" transfer-ownership="none">
+            <type name="gsize" c:type="size_t"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="replace_policy_from_fd"
+              c:identifier="aa_kernel_interface_replace_policy_from_fd">
+        <source-position filename="apparmor.h" line="183"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="fd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="replace_policy_from_file"
+              c:identifier="aa_kernel_interface_replace_policy_from_file">
+        <source-position filename="apparmor.h" line="180"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="unref" c:identifier="aa_kernel_interface_unref">
+        <source-position filename="apparmor.h" line="169"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="kernel_interface"
+                              transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <function name="new" c:identifier="aa_kernel_interface_new">
+        <source-position filename="apparmor.h" line="165"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="kernel_interface" transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface**"/>
+          </parameter>
+          <parameter name="kernel_features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </parameter>
+          <parameter name="apparmorfs" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="write_policy"
+                c:identifier="aa_kernel_interface_write_policy">
+        <source-position filename="apparmor.h" line="187"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="fd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="buffer" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="size" transfer-ownership="none">
+            <type name="gsize" c:type="size_t"/>
+          </parameter>
+        </parameters>
+      </function>
+    </record>
+    <function name="kernel_interface_new"
+              c:identifier="aa_kernel_interface_new"
+              moved-to="kernel_interface.new">
+      <source-position filename="apparmor.h" line="165"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="kernel_interface" transfer-ownership="none">
+          <type name="kernel_interface" c:type="aa_kernel_interface**"/>
+        </parameter>
+        <parameter name="kernel_features" transfer-ownership="none">
+          <type name="features" c:type="aa_features*"/>
+        </parameter>
+        <parameter name="apparmorfs" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="kernel_interface_write_policy"
+              c:identifier="aa_kernel_interface_write_policy"
+              moved-to="kernel_interface.write_policy">
+      <source-position filename="apparmor.h" line="187"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="fd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="buffer" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="size" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+      </parameters>
+    </function>
+    <record name="policy_cache" c:type="aa_policy_cache" disguised="1">
+      <source-position filename="apparmor.h" line="190"/>
+      <method name="add_ro_dir" c:identifier="aa_policy_cache_add_ro_dir">
+        <source-position filename="apparmor.h" line="195"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="dir_path" c:identifier="aa_policy_cache_dir_path">
+        <source-position filename="apparmor.h" line="204"/>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="n" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="dirfd" c:identifier="aa_policy_cache_dirfd">
+        <source-position filename="apparmor.h" line="205"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="dir" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="filename" c:identifier="aa_policy_cache_filename">
+        <source-position filename="apparmor.h" line="208"/>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="char*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="no_dirs" c:identifier="aa_policy_cache_no_dirs">
+        <source-position filename="apparmor.h" line="203"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="open" c:identifier="aa_policy_cache_open">
+        <source-position filename="apparmor.h" line="206"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="name" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="flags" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="ref" c:identifier="aa_policy_cache_ref" introspectable="0">
+        <source-position filename="apparmor.h" line="197"/>
+        <return-value>
+          <type name="policy_cache" c:type="aa_policy_cache*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="replace_all" c:identifier="aa_policy_cache_replace_all">
+        <source-position filename="apparmor.h" line="201"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+          <parameter name="kernel_interface" transfer-ownership="none">
+            <type name="kernel_interface" c:type="aa_kernel_interface*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="unref" c:identifier="aa_policy_cache_unref">
+        <source-position filename="apparmor.h" line="198"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <function name="dir_path_preview"
+                c:identifier="aa_policy_cache_dir_path_preview">
+        <source-position filename="apparmor.h" line="209"/>
+        <return-value transfer-ownership="full">
+          <type name="utf8" c:type="char*"/>
+        </return-value>
+        <parameters>
+          <parameter name="kernel_features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="new" c:identifier="aa_policy_cache_new">
+        <source-position filename="apparmor.h" line="191"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="policy_cache" transfer-ownership="none">
+            <type name="policy_cache" c:type="aa_policy_cache**"/>
+          </parameter>
+          <parameter name="kernel_features" transfer-ownership="none">
+            <type name="features" c:type="aa_features*"/>
+          </parameter>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+          <parameter name="max_caches" transfer-ownership="none">
+            <type name="guint16" c:type="uint16_t"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="remove" c:identifier="aa_policy_cache_remove">
+        <source-position filename="apparmor.h" line="200"/>
+        <return-value transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </return-value>
+        <parameters>
+          <parameter name="dirfd" transfer-ownership="none">
+            <type name="gint" c:type="int"/>
+          </parameter>
+          <parameter name="path" transfer-ownership="none">
+            <type name="utf8" c:type="const char*"/>
+          </parameter>
+        </parameters>
+      </function>
+    </record>
+    <function name="policy_cache_dir_path_preview"
+              c:identifier="aa_policy_cache_dir_path_preview"
+              moved-to="policy_cache.dir_path_preview">
+      <source-position filename="apparmor.h" line="209"/>
+      <return-value transfer-ownership="full">
+        <type name="utf8" c:type="char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="kernel_features" transfer-ownership="none">
+          <type name="features" c:type="aa_features*"/>
+        </parameter>
+        <parameter name="dirfd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="policy_cache_new"
+              c:identifier="aa_policy_cache_new"
+              moved-to="policy_cache.new">
+      <source-position filename="apparmor.h" line="191"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="policy_cache" transfer-ownership="none">
+          <type name="policy_cache" c:type="aa_policy_cache**"/>
+        </parameter>
+        <parameter name="kernel_features" transfer-ownership="none">
+          <type name="features" c:type="aa_features*"/>
+        </parameter>
+        <parameter name="dirfd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="max_caches" transfer-ownership="none">
+          <type name="guint16" c:type="uint16_t"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="policy_cache_remove"
+              c:identifier="aa_policy_cache_remove"
+              moved-to="policy_cache.remove">
+      <source-position filename="apparmor.h" line="200"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="dirfd" transfer-ownership="none">
+          <type name="gint" c:type="int"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="query_file_path" c:identifier="aa_query_file_path">
+      <source-position filename="apparmor.h" line="113"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="mask" transfer-ownership="none">
+          <type name="guint32" c:type="uint32_t"/>
+        </parameter>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="allowed" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+        <parameter name="audited" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="query_file_path_len" c:identifier="aa_query_file_path_len">
+      <source-position filename="apparmor.h" line="110"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="mask" transfer-ownership="none">
+          <type name="guint32" c:type="uint32_t"/>
+        </parameter>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="label_len" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="path" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="path_len" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="allowed" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+        <parameter name="audited" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="query_label" c:identifier="aa_query_label">
+      <source-position filename="apparmor.h" line="108"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="mask" transfer-ownership="none">
+          <type name="guint32" c:type="uint32_t"/>
+        </parameter>
+        <parameter name="query" transfer-ownership="none">
+          <type name="utf8" c:type="char*"/>
+        </parameter>
+        <parameter name="size" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="allow" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+        <parameter name="audit" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="query_link_path" c:identifier="aa_query_link_path">
+      <source-position filename="apparmor.h" line="119"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="target" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="link" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="allowed" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+        <parameter name="audited" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="query_link_path_len" c:identifier="aa_query_link_path_len">
+      <source-position filename="apparmor.h" line="115"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="label" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="label_len" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="target" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="target_len" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="link" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+        <parameter name="link_len" transfer-ownership="none">
+          <type name="gsize" c:type="size_t"/>
+        </parameter>
+        <parameter name="allowed" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+        <parameter name="audited" transfer-ownership="none">
+          <type name="gint" c:type="int*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="splitcon" c:identifier="aa_splitcon">
+      <source-position filename="apparmor.h" line="88"/>
+      <return-value transfer-ownership="full">
+        <type name="utf8" c:type="char*"/>
+      </return-value>
+      <parameters>
+        <parameter name="con" transfer-ownership="none">
+          <type name="utf8" c:type="char*"/>
+        </parameter>
+        <parameter name="mode" transfer-ownership="none">
+          <type name="utf8" c:type="char**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="stack_onexec" c:identifier="aa_stack_onexec">
+      <source-position filename="apparmor.h" line="86"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="profile" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="stack_profile" c:identifier="aa_stack_profile">
+      <source-position filename="apparmor.h" line="85"/>
+      <return-value transfer-ownership="none">
+        <type name="gint" c:type="int"/>
+      </return-value>
+      <parameters>
+        <parameter name="profile" transfer-ownership="none">
+          <type name="utf8" c:type="const char*"/>
+        </parameter>
+      </parameters>
+    </function>
+  </namespace>
+</repository>
