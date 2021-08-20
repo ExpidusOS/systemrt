@@ -10,6 +10,7 @@ namespace SystemRT {
 
         public uint32 pid {
             get {
+                if (this._proc == null) return 0;
                 return int.parse(this._proc.get_identifier());
             }
         }
@@ -20,7 +21,7 @@ namespace SystemRT {
             this._rules = new GLib.List<PermissionRule?>();
             this._argv = argv;
 
-            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.NONE /*STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE*/);
+            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE);
 
             if (this._session.auth != null) launcher.setenv("XAUTHORITY", this._session.auth, true);
             if (this._session.disp != null) launcher.setenv("DISPLAY", this._session.disp.get_name(), true);
@@ -58,13 +59,14 @@ namespace SystemRT {
                     GLib.Process.exit(1);
                 }
             });
-            this._proc = launcher.spawnv(argv);
 
             // TODO: read database
             this._daemon.iterate_permissions((perm) => {
                 perm.def(this);
             });
             this.update_apparmor();
+
+            this._proc = launcher.spawnv(argv);
 
             /*if (!this._proc.get_if_exited()) {
                 GLib.ChildWatch.add((GLib.Pid)this.pid, () => {
@@ -81,38 +83,24 @@ namespace SystemRT {
         private extern bool load_seccomp() throws GLib.Error;
 
         private void update_apparmor() throws GLib.FileError {
-            string apparmor_profile = """#include <tunables/global>
-profile user=%s %s {
-    #include <abstractions/base>
-    #include <abstractions/consoles>
-    #include <abstractions/dbus>
-    #include <abstractions/fonts>
-    #include <abstractions/gnome>
-    #include <abstractions/mesa>
-    #include <abstractions/nvidia>
-    #include <abstractions/vulkan>
-    #include <abstractions/wayland>
-    #include <abstractions/X>
+            string apparmor_profile = """abi <abi/3.0>,
+include <tunables/global>
 
-    /dev/ptmx rw,
-    /etc/group r,
-    /etc/nsswitch.conf r,
-    /etc/passwd r,
-    %s r,
-    /usr/bin/nvidia-modprobe mrix,
-    /var/cache/fontconfig/ w,
-    /proc/modules r,
-    /sys/bus/pci/devices/ r,
-    owner @{HOME}/.cache/nvidia/GLCache/ rwk,
-    owner @{HOME}/.cache/nvidia/GLCache/** rwk,
-    owner @{HOME}/.config/** rw,
-    owner /proc/*/comm r,
-    owner /usr/share/fonts/** rw,
-    owner /run/user/%lu/gdm/Xauthority r,
-    /{usr/,}bin/ mrix,
-    /tmp rw,
-""".printf(this._user.name, this._argv[0], this._argv[0], this._user.uid);
+%s {
+  include <abstractions/base>
+  include <abstractions/dbus>
+  include <abstractions/fonts>
+  include <abstractions/gnome>
+  include <abstractions/mesa>
+  include <abstractions/nvidia>
+  include <abstractions/vulkan>
+  include <abstractions/wayland>
+  include <abstractions/X>
+  
+  profile user=%s {
+""".printf(this._argv[0], this._user.name);
 
+            // TODO: maybe we should move the profile generation to somewhere else and load in permissions per-user, possibly cache some things.
             foreach (var rule in this._rules) {
                 switch (rule.category) {
                     case PermissionCategory.FS:
@@ -140,17 +128,23 @@ profile user=%s %s {
                                     }
                                 }
 
-                                apparmor_profile += "\t" + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
+                                apparmor_profile += "    " + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
                                 break;
                         }
                         break;
                 }
             }
 
-            apparmor_profile += "}";
+            apparmor_profile += """  }
+  include "/etc/expidus/sys/profiles.d/%s"
+  deny /etc/expidus rw,
+  deny /etc/expidus/** rw,
+}""".printf(this._argv[0].substring(1).replace("/", "."));
 
             var path = SYSCONFDIR + "/apparmor.d/systemrt-%lu-%s".printf(this._user.uid, this._argv[0].substring(1).replace("/", "."));
             GLib.FileUtils.set_contents(path, apparmor_profile);
+
+            // TODO: force the profile to be parsed now
         }
 
         public void to_lua(Lua.LuaVM lvm) {
