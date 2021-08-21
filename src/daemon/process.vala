@@ -141,6 +141,40 @@ include <tunables/global>
                                 break;
                         }
                         break;
+                    case PermissionCategory.NET:
+                        switch (rule.action) {
+                            case "set_access":
+                                var mode = rule.values[0] as string;
+                                var type = rule.values[1] as string;
+                                var proto = rule.values[2] as string;
+                                var perms = "";
+
+                                if (proto.length > 0) proto = " " + proto;
+
+                                for (var i = 3; i < rule.values.length; i++) {
+                                    var p = rule.values[i] as string;
+
+                                    if (i == 3) perms += "(";
+
+                                    perms += p;
+
+                                    if ((i + 1) != rule.values.length) perms += ", ";
+                                }
+
+                                if (perms.length > 0) perms += ") ";
+                                
+                                apparmor_profile += "    " + (mode != "allow" ? mode + " " : "") + "network " + perms + type + proto + ",\n";
+                                break;
+                            case "set_connect":
+                                var mode = rule.values[0] as string;
+                                var proto = rule.values[1] as string;
+                                var src = rule.values[2] as string;
+                                var dst = rule.values.length == 4 ? rule.values[3] as string : null;
+
+                                apparmor_profile += "    " + (mode != "allow" ? mode + " " : "") + "network " + proto + " src " + src + (dst == null ? "" : " dst " + dst) + ",\n";
+                                break;
+                        }
+                        break;
                 }
             }
 
@@ -148,6 +182,9 @@ include <tunables/global>
   include "/etc/expidus/sys/profiles.d/%s"
   deny /etc/expidus rw,
   deny /etc/expidus/** rw,
+
+  audit network,
+  audit @{HOME}/.ssh rwmxi,
 }""".printf(this._argv[0].substring(1).replace("/", "."));
 
             var path = SYSCONFDIR + "/apparmor.d/systemrt-%lu-%s".printf(this._user.uid, this._argv[0].substring(1).replace("/", "."));
@@ -381,6 +418,161 @@ include <tunables/global>
             });
             lvm.raw_set(-3);
 
+            lvm.push_string("get_net");
+            lvm.push_cfunction((lvm) => {
+                if (lvm.get_top() != 1) {
+                    lvm.push_literal("Expected 1 argument");
+                    lvm.error();
+                    return 0;
+                }
+
+                if (lvm.type(1) != Lua.Type.TABLE) {
+                    lvm.push_literal("Invalid argument: expected an instance of process");
+                    lvm.error();
+                    return 0;
+                }
+
+                lvm.get_field(1, "__ptr");
+                Process self = (Process)lvm.to_userdata(2);
+
+                lvm.new_table();
+
+                lvm.push_string("__ptr");
+                lvm.push_lightuserdata(self);
+                lvm.raw_set(-3);
+
+                lvm.push_string("set_access");
+                lvm.push_cfunction((lvm) => {
+                    if (lvm.get_top() < 3) {
+                        lvm.push_literal("Expecting at least 3 arguments");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(1) != Lua.Type.TABLE) {
+                        lvm.push_literal("Invalid argument: expected an instance of process networking");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(2) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(3) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(4) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    lvm.get_field(1, "__ptr");
+                    Process s = (Process)lvm.to_userdata(lvm.get_top());
+
+                    var mode = lvm.to_string(2);
+                    var type = lvm.to_string(3);
+                    var proto = lvm.to_string(4);
+
+                    switch (mode) {
+                        case "allow":
+                        case "deny":
+                            break;
+                        default:
+                            lvm.push_literal("Invalid mode");
+                            lvm.error();
+                            return 0;
+                    }
+
+                    GLib.Value[] values = {};
+                    values += mode;
+                    values += type;
+                    values += proto;
+                    for (var i = 5; i < lvm.get_top(); i++) {
+                        var str = lvm.to_string(i);
+                        values += str;
+                    }
+
+                    PermissionRule rule = {
+                        PermissionCategory.NET,
+                        "set_access",
+                        values
+                    };
+                    s._rules.append(rule);
+                    return 0;
+                });
+                lvm.raw_set(-3);
+
+                lvm.push_string("set_connect");
+                lvm.push_cfunction((lvm) => {
+                    if (lvm.get_top() > 5 || lvm.get_top() < 4) {
+                        lvm.push_literal("Expecting at least 3 arguments");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(1) != Lua.Type.TABLE) {
+                        lvm.push_literal("Invalid argument: expected an instance of process networking");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(2) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(3) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(4) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    lvm.get_field(1, "__ptr");
+                    Process s = (Process)lvm.to_userdata(lvm.get_top());
+
+                    GLib.Value[] values = {};
+
+                    values += lvm.to_string(2);
+                    values += lvm.to_string(3);
+                    values += lvm.to_string(4);
+
+                    if (lvm.get_top() == 5) {
+                        if (lvm.type(5) != Lua.Type.STRING) {
+                            lvm.push_literal("Invalid argument: expected a string");
+                            lvm.error();
+                            return 0;
+                        }
+
+                        values += lvm.to_string(5);
+                    }
+
+                    PermissionRule rule = {
+                        PermissionCategory.NET,
+                        "set_connect",
+                        values
+                    };
+                    s._rules.append(rule);
+                    return 0;
+                });
+                lvm.raw_set(-3);
+                return 1;
+            });
+            lvm.raw_set(-3);
+
             lvm.push_string("inject_rule");
             lvm.push_cfunction((lvm) => {
                 if (lvm.get_top() < 3) {
@@ -422,6 +614,32 @@ include <tunables/global>
                                 break;
                             default:
                                 lvm.push_literal("Invalid action for \"fs\" category");
+                                lvm.error();
+                                return 0;
+                        }
+                        break;
+                    case "caps":
+                        cat = PermissionCategory.CAPS;
+
+                        switch (action) {
+                            case "mode":
+                                break;
+                            default:
+                                lvm.push_literal("Invalid action for \"caps\" category");
+                                lvm.error();
+                                return 0;
+                        }
+                        break;
+                    case "net":
+                        cat = PermissionCategory.NET;
+
+                        switch (action) {
+                            case "set_access":
+                                break;
+                            case "set_connect":
+                                break;
+                            default:
+                                lvm.push_literal("Invalid action for \"net\" category");
                                 lvm.error();
                                 return 0;
                         }
