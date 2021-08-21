@@ -120,7 +120,7 @@ include <tunables/global>
                                             mode += "w";
                                             break;
                                         case "exec":
-                                            mode += "x";
+                                            mode += "xi";
                                             break;
                                         case "link":
                                             mode += "l";
@@ -129,6 +129,15 @@ include <tunables/global>
                                 }
 
                                 apparmor_profile += "    " + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
+                                break;
+                        }
+                        break;
+                    case PermissionCategory.CAPS:
+                        switch (rule.action) {
+                            case "set":
+                                var cap_name = rule.values[0] as string;
+                                var action = rule.values[1] as string;
+                                apparmor_profile += "    " + (action != "allow" ? action + " " : "") + "capability " + cap_name + ",\n";
                                 break;
                         }
                         break;
@@ -251,6 +260,7 @@ include <tunables/global>
                                         switch (mode) {
                                             case "deny":
                                             case "allow":
+                                            case "audit":
                                                 values += mode;
                                                 break;
                                             default:
@@ -285,6 +295,170 @@ include <tunables/global>
                 });
                 lvm.raw_set(-3);
                 return 1;
+            });
+            lvm.raw_set(-3);
+
+            lvm.push_string("get_caps");
+            lvm.push_cfunction((lvm) => {
+                if (lvm.get_top() != 1) {
+                    lvm.push_literal("Expected 1 argument");
+                    lvm.error();
+                    return 0;
+                }
+
+                if (lvm.type(1) != Lua.Type.TABLE) {
+                    lvm.push_literal("Invalid argument: expected an instance of process");
+                    lvm.error();
+                    return 0;
+                }
+
+                lvm.get_field(1, "__ptr");
+                Process self = (Process)lvm.to_userdata(2);
+
+                lvm.new_table();
+
+                lvm.push_string("__ptr");
+                lvm.push_lightuserdata(self);
+                lvm.raw_set(-3);
+
+                lvm.push_string("set");
+                lvm.push_cfunction((lvm) => {
+                    if (lvm.get_top() != 3) {
+                        lvm.push_literal("Expected 3 arguments");
+                        lvm.error();
+                        return 0;
+                    }
+
+                     if (lvm.type(1) != Lua.Type.TABLE) {
+                        lvm.push_literal("Invalid argument: expected an instance of process capabilities");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(2) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    if (lvm.type(3) != Lua.Type.STRING) {
+                        lvm.push_literal("Invalid argument: expected a string");
+                        lvm.error();
+                        return 0;
+                    }
+
+                    lvm.get_field(1, "__ptr");
+                    Process s = (Process)lvm.to_userdata(4);
+
+                    var cap_name = lvm.to_string(2);
+                    var action = lvm.to_string(3);
+
+                    switch (action) {
+                        case "deny":
+                        case "kill":
+                        case "allow":
+                            break;
+                        default:
+                            lvm.push_literal("Invalid action");
+                            lvm.error();
+                            return 0;
+                    }
+
+                    GLib.Value[] values = {};
+                    values += cap_name;
+                    values += action;
+
+                    PermissionRule rule = {
+                        PermissionCategory.CAPS,
+                        "set",
+                        values
+                    };
+                    s._rules.append(rule);
+                    return 0;
+                });
+                lvm.raw_set(-3);
+                return 1;
+            });
+            lvm.raw_set(-3);
+
+            lvm.push_string("inject_rule");
+            lvm.push_cfunction((lvm) => {
+                if (lvm.get_top() < 3) {
+                    lvm.push_literal("Expected at least 3 arguments");
+                    lvm.error();
+                    return 0;
+                }
+
+                if (lvm.type(1) != Lua.Type.TABLE) {
+                    lvm.push_literal("Invalid argument: expected an instance of process");
+                    lvm.error();
+                    return 0;
+                }
+                
+                if (lvm.type(2) != Lua.Type.STRING) {
+                    lvm.push_literal("Invalid argument: expected a string");
+                    lvm.error();
+                    return 0;
+                }
+
+                if (lvm.type(3) != Lua.Type.STRING) {
+                    lvm.push_literal("Invalid argument: expected a string");
+                    lvm.error();
+                    return 0;
+                }
+
+                lvm.get_field(1, "__ptr");
+                Process self = (Process)lvm.to_userdata(lvm.get_top());
+
+                var action = lvm.to_string(3);
+
+                PermissionCategory cat;
+                switch (lvm.to_string(2)) {
+                    case "fs":
+                        cat = PermissionCategory.FS;
+
+                        switch (action) {
+                            case "mode":
+                                break;
+                            default:
+                                lvm.push_literal("Invalid action for \"fs\" category");
+                                lvm.error();
+                                return 0;
+                        }
+                        break;
+                    default:
+                        lvm.push_literal("Invalid permission category");
+                        lvm.error();
+                        return 0;
+                }
+
+                GLib.Value[] values = {};
+
+                for (var i = 4; i < lvm.get_top(); i++) {
+                    switch (lvm.type(i)) {
+                        case Lua.Type.STRING:
+                            values += lvm.to_string(i);
+                            break;
+                        case Lua.Type.BOOLEAN:
+                            values += lvm.to_boolean(i);
+                            break;
+                        case Lua.Type.NUMBER:
+                            values += lvm.to_integer(i);
+                            break;
+                        default:
+                            lvm.push_literal("Argument type not supported");
+                            lvm.error();
+                            return 0;
+                    }
+                }
+
+                PermissionRule rule = {
+                    cat,
+                    action,
+                    values
+                };
+                self._rules.append(rule);
+                return 0;
             });
             lvm.raw_set(-3);
         }

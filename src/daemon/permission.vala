@@ -5,7 +5,8 @@ namespace SystemRT {
     }
 
     public enum PermissionCategory {
-        FS
+        FS,
+        CAPS
     }
     
     public delegate PermissionAction PermissionDefault(Process proc);
