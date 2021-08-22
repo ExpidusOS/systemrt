@@ -7,10 +7,12 @@ namespace SystemRT {
         private GLib.List<PermissionRule?> _rules;
         private User _user;
         private string[] _argv;
+        private uint32 _pid = 0;
 
         public uint32 pid {
             get {
-                if (this._proc == null) return 0;
+                if (this._proc == null) return this._pid;
+                if (this._proc.get_identifier() == null) return this._pid;
                 return int.parse(this._proc.get_identifier());
             }
         }
@@ -21,7 +23,7 @@ namespace SystemRT {
             this._rules = new GLib.List<PermissionRule?>();
             this._argv = argv;
 
-            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE);
+            var launcher = new GLib.SubprocessLauncher(GLib.SubprocessFlags.NONE /*STDERR_SILENCE | GLib.SubprocessFlags.STDOUT_SILENCE*/);
 
             if (this._session.auth != null) launcher.setenv("XAUTHORITY", this._session.auth, true);
             if (this._session.disp != null) launcher.setenv("DISPLAY", this._session.disp.get_name(), true);
@@ -42,6 +44,8 @@ namespace SystemRT {
             launcher.set_cwd(this._user.homedir);
 
             launcher.set_child_setup(() => {
+                this._pid = Posix.getpid();
+
                 /* Load capabilities */
                 try {
                     this.load_caps(uid, gid);
@@ -58,6 +62,11 @@ namespace SystemRT {
                     stderr.printf("%s: (%s:%d) %s\n", argv[0], e.domain.to_string(), e.code, e.message);
                     GLib.Process.exit(1);
                 }
+
+                if (AppArmor.change_profile(argv[0] + "//" + this._user.name) != 0) {
+                    stderr.printf("%s: failed to change profile: %s\n", argv[0], Posix.strerror(Posix.errno));
+                    GLib.Process.exit(1);
+                }
             });
 
             // TODO: read database
@@ -68,11 +77,9 @@ namespace SystemRT {
 
             this._proc = launcher.spawnv(argv);
 
-            /*if (!this._proc.get_if_exited()) {
-                GLib.ChildWatch.add((GLib.Pid)this.pid, () => {
-                    this.on_exit();
-                });
-            }*/
+            GLib.ChildWatch.add((GLib.Pid)this.pid, () => {
+                this.on_exit();
+            });
         }
 
         private void on_exit() {
@@ -83,10 +90,7 @@ namespace SystemRT {
         private extern bool load_seccomp() throws GLib.Error;
 
         private void update_apparmor() throws GLib.FileError {
-            string apparmor_profile = """abi <abi/3.0>,
-include <tunables/global>
-
-%s {
+            var apparmor_profile = """profile %s//%s {
   include <abstractions/base>
   include <abstractions/dbus>
   include <abstractions/fonts>
@@ -96,8 +100,7 @@ include <tunables/global>
   include <abstractions/vulkan>
   include <abstractions/wayland>
   include <abstractions/X>
-  
-  profile user=%s {
+
 """.printf(this._argv[0], this._user.name);
 
             // TODO: maybe we should move the profile generation to somewhere else and load in permissions per-user, possibly cache some things.
@@ -120,7 +123,8 @@ include <tunables/global>
                                             mode += "w";
                                             break;
                                         case "exec":
-                                            mode += "xi";
+                                            if (enforce == "allow") mode += "i";
+                                            mode += "x";
                                             break;
                                         case "link":
                                             mode += "l";
@@ -128,7 +132,7 @@ include <tunables/global>
                                     }
                                 }
 
-                                apparmor_profile += "    " + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
+                                apparmor_profile += "  " + (enforce != "allow" ?  enforce + " " : "") + path + (mode.length > 0 ? " " + mode : "") + ",\n";
                                 break;
                         }
                         break;
@@ -137,7 +141,7 @@ include <tunables/global>
                             case "set":
                                 var cap_name = rule.values[0] as string;
                                 var action = rule.values[1] as string;
-                                apparmor_profile += "    " + (action != "allow" ? action + " " : "") + "capability " + cap_name + ",\n";
+                                apparmor_profile += "  " + (action != "allow" ? action + " " : "") + "capability " + cap_name + ",\n";
                                 break;
                         }
                         break;
@@ -163,7 +167,7 @@ include <tunables/global>
 
                                 if (perms.length > 0) perms += ") ";
                                 
-                                apparmor_profile += "    " + (mode != "allow" ? mode + " " : "") + "network " + perms + type + proto + ",\n";
+                                apparmor_profile += "  " + (mode != "allow" ? mode + " " : "") + "network " + perms + type + proto + ",\n";
                                 break;
                             case "set_connect":
                                 var mode = rule.values[0] as string;
@@ -171,23 +175,52 @@ include <tunables/global>
                                 var src = rule.values[2] as string;
                                 var dst = rule.values.length == 4 ? rule.values[3] as string : null;
 
-                                apparmor_profile += "    " + (mode != "allow" ? mode + " " : "") + "network " + proto + " src " + src + (dst == null ? "" : " dst " + dst) + ",\n";
+                                apparmor_profile += "  " + (mode != "allow" ? mode + " " : "") + "network " + proto + " src " + src + (dst == null ? "" : " dst " + dst) + ",\n";
                                 break;
                         }
                         break;
                 }
             }
 
-            apparmor_profile += """  }
-  include "/etc/expidus/sys/profiles.d/%s"
+            apparmor_profile += """  include if exists "/etc/expidus/sys/profiles.d/%s"
   deny /etc/expidus rw,
   deny /etc/expidus/** rw,
 
   audit network,
-  audit @{HOME}/.ssh rwmxi,
+  audit @{HOME}/.ssh rwmix,
 }""".printf(this._argv[0].substring(1).replace("/", "."));
 
-            var path = SYSCONFDIR + "/apparmor.d/systemrt-%lu-%s".printf(this._user.uid, this._argv[0].substring(1).replace("/", "."));
+            GLib.DirUtils.create_with_parents(SYSCONFDIR + "/apparmor.d/systemrt/%s".printf(this._argv[0].substring(1).replace("/", ".")), 493);
+
+            var path = SYSCONFDIR + "/apparmor.d/systemrt/%s/%lu".printf(this._argv[0].substring(1).replace("/", "."), this._user.uid);
+            GLib.FileUtils.set_contents(path, apparmor_profile);
+
+            apparmor_profile = """abi <abi/3.0>,
+include <tunables/global>
+
+%s {
+  include <abstractions/base>
+  include <abstractions/dbus>
+  include <abstractions/fonts>
+  include <abstractions/gnome>
+  include <abstractions/mesa>
+  include <abstractions/nvidia>
+  include <abstractions/vulkan>
+  include <abstractions/wayland>
+  include <abstractions/X>
+
+  include if exists "/etc/expidus/sys/profiles.d/%s"
+  deny /etc/expidus rw,
+  deny /etc/expidus/** rw,
+
+  audit network,
+  audit @{HOME}/.ssh rwmix,
+}
+
+include <systemrt/%s/>
+""".printf(this._argv[0], this._argv[0].substring(1).replace("/", "."), this._argv[0].substring(1).replace("/", "."));
+
+            path = SYSCONFDIR + "/apparmor.d/systemrt-%s".printf(this._argv[0].substring(1).replace("/", "."));
             GLib.FileUtils.set_contents(path, apparmor_profile);
 
             // TODO: force the profile to be parsed now
