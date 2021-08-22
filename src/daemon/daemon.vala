@@ -191,6 +191,31 @@ namespace SystemRT {
       } catch (GLib.FileError e) {
         stderr.printf("systemrtd: failed to read file/directory: (%s) %s\n", e.domain.to_string(), e.message);
       }
+
+      this._lvm.set_top(0);
+      this._lvm.get_global("rt");
+
+      this._lvm.push_string("add_runtime");
+      this._lvm.push_cfunction((lvm) => {
+        // TODO: how would we even implement this?
+        return 0;
+      });
+      this._lvm.raw_set(-3);
+
+      try {
+        var dir = GLib.Dir.open(SYSCONFDIR + "/expidus/sys/runtime.d");
+        string? dirent = null;
+        while ((dirent = dir.read_name()) != null) {
+          var path = SYSCONFDIR + "/expidus/sys/runtime.d/%s".printf(dirent);
+          if (!GLib.FileUtils.test(path, GLib.FileTest.IS_REGULAR)) continue;
+
+          if (this._lvm.do_file(path)) {
+            stderr.printf("systemrtd: failed to load runtime \"%s\": %s\n", path, this._lvm.to_string(-1));
+          }
+        }
+      } catch (GLib.FileError e) {
+        stderr.printf("systemrtd: failed to read file/directory: (%s) %s\n", e.domain.to_string(), e.message);
+      }
     }
 
     ~DaemonSystemRT() {

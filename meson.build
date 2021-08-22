@@ -54,6 +54,10 @@ install_subdir('data/conf.d',
 	install_dir: join_paths(sysconfdir, 'expidus', 'sys'))
 install_subdir('src/perms.d',
 	install_dir: join_paths(sysconfdir, 'expidus', 'sys'))
+install_subdir('src/profiles.d',
+	install_dir: join_paths(sysconfdir, 'expidus', 'sys'))
+install_subdir('src/runtime.d',
+	install_dir: join_paths(sysconfdir, 'expidus', 'sys'))
 
 build_conf = configure_file(input: 'src/build.vala.in', output: 'build.vala',
 	configuration: conf_data)

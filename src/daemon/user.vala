@@ -29,6 +29,8 @@ namespace SystemRT {
                 throw new Error.INVALID_USER("Failed to get passwd for user with id of %lu", uid);
             }
             this._passwd = passwd;
+
+            GLib.DirUtils.create_with_parents(this._passwd.pw_dir + "/.local/share/expidus/systemrt/", 493);
         }
 
         public bool is_admin() throws GLib.Error {
