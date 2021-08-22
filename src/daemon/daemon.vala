@@ -214,7 +214,7 @@ namespace SystemRT {
       var dir = GLib.Dir.open(SYSCONFDIR + "/expidus/sys/conf.d");
       string? dirent = null;
       while ((dirent = dir.read_name()) != null) {
-        var path = SYSCONFDIR + "/expidus/sys/perms.d/%s".printf(dirent);
+        var path = SYSCONFDIR + "/expidus/sys/conf.d/%s".printf(dirent);
         var subkf = new GLib.KeyFile();
 
         subkf.load_from_file(path, GLib.KeyFileFlags.NONE);

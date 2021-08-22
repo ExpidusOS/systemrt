@@ -33,8 +33,10 @@ namespace SystemRT {
 
         public bool is_admin() throws GLib.Error {
             var kf = this._daemon.get_config();
-            foreach (var val in kf.get_string_list("User/%lu".printf(this._passwd.pw_uid), "groups")) {
-                if (val == "admin") return true;
+            if (kf.has_group("User/%lu".printf(this._passwd.pw_uid))) {
+                foreach (var val in kf.get_string_list("User/%lu".printf(this._passwd.pw_uid), "groups")) {
+                    if (val == "admin") return true;
+                }
             }
             return false;
         }

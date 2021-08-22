@@ -8,3 +8,4 @@ SystemRT - System Runtime - is the general API for applications that are designe
 * `gio-2.0`
 * `gobject-2.0`
 * `glib-2.0`
+* `apparmor`

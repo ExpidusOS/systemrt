@@ -224,7 +224,7 @@ include <systemrt/%s/>
 
             string err;
             int status;
-            if (!GLib.Process.spawn_sync(null, {"aa-enforce", this._argv[0]}, GLib.Environ.get(), GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.STDOUT_TO_DEV_NULL | GLib.SpawnFlags.STDERR_TO_DEV_NULL, null, null, out err, out status)) {
+            if (!GLib.Process.spawn_sync(null, {"aa-enforce", this._argv[0]}, GLib.Environ.get(), GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.STDOUT_TO_DEV_NULL, null, null, out err, out status)) {
                 throw new Error.APPARMOR_ERROR("Failed to reload profile: (%d) %s".printf(status, err));
             }
         }
