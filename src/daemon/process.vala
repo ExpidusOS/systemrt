@@ -89,7 +89,7 @@ namespace SystemRT {
         private extern bool load_caps(uint32 uid, uint32 gid) throws GLib.Error;
         private extern bool load_seccomp() throws GLib.Error;
 
-        private void update_apparmor() throws GLib.FileError {
+        private void update_apparmor() throws GLib.FileError, GLib.SpawnError, Error {
             var apparmor_profile = """profile %s//%s {
   include <abstractions/base>
   include <abstractions/dbus>
@@ -103,7 +103,6 @@ namespace SystemRT {
 
 """.printf(this._argv[0], this._user.name);
 
-            // TODO: maybe we should move the profile generation to somewhere else and load in permissions per-user, possibly cache some things.
             foreach (var rule in this._rules) {
                 switch (rule.category) {
                     case PermissionCategory.FS:
@@ -223,7 +222,11 @@ include <systemrt/%s/>
             path = SYSCONFDIR + "/apparmor.d/systemrt-%s".printf(this._argv[0].substring(1).replace("/", "."));
             GLib.FileUtils.set_contents(path, apparmor_profile);
 
-            // TODO: force the profile to be parsed now
+            string err;
+            int status;
+            if (!GLib.Process.spawn_sync(null, {"aa-enforce", this._argv[0]}, GLib.Environ.get(), GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.STDOUT_TO_DEV_NULL | GLib.SpawnFlags.STDERR_TO_DEV_NULL, null, null, out err, out status)) {
+                throw new Error.APPARMOR_ERROR("Failed to reload profile: (%d) %s".printf(status, err));
+            }
         }
 
         public void to_lua(Lua.LuaVM lvm) {
