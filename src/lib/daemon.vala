@@ -19,6 +19,7 @@ namespace SystemRT {
     public abstract void quit() throws GLib.Error;
     public abstract void ask_permission(string id) throws GLib.Error;
     public abstract void grant_permission(string app_id, string id, PermissionLevel level) throws GLib.Error;
+		public abstract uint32 spawn(string[] args) throws GLib.Error;
 
     public signal void permission_granted(string id, PermissionLevel level);
     public signal void permission_asked(string app_id, string id);
