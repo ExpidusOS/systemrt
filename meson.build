@@ -64,7 +64,7 @@ build_conf = configure_file(input: 'src/build.vala.in', output: 'build.vala',
 
 libsystemrt = shared_library('systemrt', 'src/lib/daemon.vala', build_conf,
 	vala_header: 'systemrt.h',
-	vala_vapi: 'SystemRT-1.0.vapi',
+	vala_vapi: 'systemrt.vapi',
 	install_dir: [true, true, true],
 	install: true,
 	dependencies: [glib, gobject, gio])
