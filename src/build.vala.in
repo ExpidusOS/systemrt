@@ -1,4 +1,4 @@
-namespace SystemRT {
+namespace SystemRTCommon {
   public const string VERSION = "@VERSION@";
   public const string LOCALSTATEDIR = "@LOCALSTATEDIR@";
   public const string SYSCONFDIR = "@SYSCONFDIR@";
