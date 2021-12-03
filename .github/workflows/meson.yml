@@ -10,6 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get upgrade -y
+          sudo apt-get install -y valac
       - uses: BSFishy/meson-build@v1.0.3
         with:
           action: test
