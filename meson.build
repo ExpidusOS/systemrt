@@ -4,11 +4,9 @@ pkgconfig = find_program('pkg-config')
 
 pkg = import('pkgconfig')
 dbus = dependency('dbus-1')
-gdk = dependency('gdk-3.0')
 glib = dependency('glib-2.0')
 gobject = dependency('gobject-2.0')
 gio = [dependency('gio-2.0'), dependency('gio-unix-2.0')]
-libconfuse = dependency('libconfuse')
 
 build_tests = get_option('build_tests')
 
