@@ -1,7 +1,11 @@
 namespace SystemRTPolicy {
 	public abstract class Process : GLib.Object, SystemRTCommon.Serializable, ContextualObject {
-		public abstract GLib.Variant serialize();
-		public abstract void deserialize(GLib.Variant v);
+		public abstract GLib.Variant serialize_value();
+		public abstract void deserialize_value(GLib.Variant v);
+
+		public bool should_serialize() {
+			return true;
+		}
 
 		public string get_namespace() {
 			return "process";
@@ -28,11 +32,11 @@ namespace SystemRTPolicy {
 			Object(path: path);
 		}
 
-		public override GLib.Variant serialize() {
+		public override GLib.Variant serialize_value() {
 			return new GLib.Variant("(s)", this.path);
 		}
 
-		public override void deserialize(GLib.Variant v) {
+		public override void deserialize_value(GLib.Variant v) {
 			v.@get("(s)", out this._path);
 		}
 
@@ -59,11 +63,11 @@ namespace SystemRTPolicy {
 			Object(id: id);
 		}
 
-		public override GLib.Variant serialize() {
+		public override GLib.Variant serialize_value() {
 			return new GLib.Variant("(s)", this.id);
 		}
 
-		public override void deserialize(GLib.Variant v) {
+		public override void deserialize_value(GLib.Variant v) {
 			v.@get("(s)", out this._id);
 		}
 

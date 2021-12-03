@@ -229,11 +229,11 @@ namespace SystemRTPolicy {
 			return "loader";
 		}
 
-		public GLib.Variant serialize() {
+		public GLib.Variant serialize_value() {
 			return new GLib.Variant("(s)", this.key_file.to_data());
 		}
 
-		public void deserialize(GLib.Variant v) {
+		public void deserialize_value(GLib.Variant v) {
 			string data;
 			v.@get("(s)", out data);
 

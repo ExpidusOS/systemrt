@@ -25,7 +25,7 @@ namespace SystemRTPolicy {
 			if (this.rules == null) this._rules = new Table<Rule>("rules");
 		}
 
-		public virtual GLib.Variant serialize() {
+		public virtual GLib.Variant serialize_value() {
 			GLib.Variant[] rules = {};
 			
 			foreach (var rule in this._rules.get_values()) {
@@ -34,7 +34,7 @@ namespace SystemRTPolicy {
 			return new GLib.Variant("(sav)", this.name, rules);
 		}
 
-		public virtual void deserialize(GLib.Variant v) {
+		public virtual void deserialize_value(GLib.Variant v) {
 			this._rules = new Table<Rule>("rules");
 			GLib.Variant[] rules;
 			v.@get("(sav)", out this._name, out rules);

@@ -4,6 +4,10 @@ namespace SystemRTPolicy {
 
 		public abstract GLib.HashTable<string, GLib.Value?> get_variables();
 
+		public virtual bool should_serialize() {
+			return false;
+		}
+
 		public virtual GLib.Variant? serialize_variable(string name) {
 			return null;
 		}
@@ -32,10 +36,18 @@ namespace SystemRTPolicy {
 				} else if (vval.type() == GLib.Type.STRING) {
 					vb.add("{sv}", vname, new GLib.Variant.string(vval.get_string()));
 				} else if (vval.type().is_object()) {
-					if (vval.get_object() is ContextualObject) {
+					var is_cobj = vval.get_object() is ContextualObject;
+					var is_ser = vval.get_object() is SystemRTCommon.Serializable;
+					if (is_cobj && !is_ser) {
 						vb.add("{sv}", vname, ((ContextualObject)vval.get_object()).get_serialized_variables());
-					} else if (vval.get_object() is SystemRTCommon.Serializable) {
+					} else if (!is_cobj && is_ser) {
 						vb.add("{sv}", vname, ((SystemRTCommon.Serializable)vval.get_object()).serialize());
+					} else if (is_cobj && is_ser) {
+						if (((ContextualObject)vval.get_object()).should_serialize()) {
+							vb.add("{sv}", vname, ((SystemRTCommon.Serializable)vval.get_object()).serialize());
+						} else {
+							vb.add("{sv}", vname, ((ContextualObject)vval.get_object()).get_serialized_variables());
+						}
 					}
 				} else {
 					var v = this.serialize_variable(vname);
@@ -81,11 +93,15 @@ namespace SystemRTPolicy {
 			}
 		}
 
-		public virtual GLib.Variant serialize() {
+		public bool should_serialize() {
+			return true;
+		}
+
+		public virtual GLib.Variant serialize_value() {
 			return new GLib.Variant("(v)", this.proc.serialize());
 		}
 
-		public virtual void deserialize(GLib.Variant v) {
+		public virtual void deserialize_value(GLib.Variant v) {
 			GLib.Variant proc;
 			v.@get("(v)", out proc);
 			this.proc.deserialize(proc);

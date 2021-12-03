@@ -41,15 +41,19 @@ namespace SystemRTPolicy {
 			}
 		}
 
+		public bool should_serialize() {
+			return true;
+		}
+
 		public string get_namespace() {
 			return this.name;
 		}
 
-		public GLib.Variant serialize() {
+		public GLib.Variant serialize_value() {
 			return new GLib.Variant("(sssv)", this.name, this.rtype, this.action, this.data);
 		}
 
-		public void deserialize(GLib.Variant v) {
+		public void deserialize_value(GLib.Variant v) {
 			v.@get("(sssv)", out this._name, out this._type, out this._action, out this._data);
 		}
 

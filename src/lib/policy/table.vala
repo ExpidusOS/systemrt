@@ -40,11 +40,11 @@ namespace SystemRTPolicy {
 			return this._tbl.get_values();
 		}
 
-		public GLib.Variant serialize() {
+		public GLib.Variant serialize_value() {
 			return new GLib.Variant("(sv)", this.name, this.get_serialized_variables());
 		}
 
-		public void deserialize(GLib.Variant v) {
+		public void deserialize_value(GLib.Variant v) {
 		}
 
 		public string get_namespace() {
