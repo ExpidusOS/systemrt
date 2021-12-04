@@ -10,8 +10,8 @@ path@type = string
 [Rule/shell_rule_1]
 rtype = filesystem
 rtype@type = string
-action = allow
-action@type = string
+action = SystemRTPolicyRuleAction@allow
+action@type = enum
 data = ('/etc/', true)
 data@type = var
 data@vformat = (sb)
@@ -49,8 +49,8 @@ path = /usr/bin/bash
 [Rule/shell_rule_1]
 # string
 rtype = filesystem
-# string
-action = allow
+# enum
+action = SystemRTPolicyRuleAction@allow
 # var
 data = ('/etc/', true)
 data@vformat = (sb)

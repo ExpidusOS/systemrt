@@ -3,6 +3,7 @@ namespace SystemRTPolicy {
 		INVALID_GROUP,
 		INVALID_RULE,
 		INVALID_TYPE,
+		INVALID_ENUM,
 		INVALID_REF,
 		INVALID_VAR
 	}
@@ -75,6 +76,7 @@ namespace SystemRTPolicy {
 				case "SystemRTPolicyApplicationProcess": return typeof (ApplicationProcess);
 				case "SystemRTPolicyFileProcess": return typeof (FileProcess);
 				case "SystemRTPolicyPolicy": return typeof (Policy);
+				case "SystemRTPolicyRuleAction": return typeof (RuleAction);
 				case "SystemRTPolicyRule": return typeof (Rule);
 			}
 			return GLib.Type.from_name(name);
@@ -147,6 +149,25 @@ namespace SystemRTPolicy {
 							} catch (GLib.VariantParseError e) {
 								throw new LoaderError.INVALID_VAR("Variant (fmt: \"%s\", str: \"%s\") in key \"%s\" group \"%s\" could not be loaded (%s:%d): %s", vtype, str, key, group, e.domain.to_string(), e.code, e.message);
 							}
+							break;
+						case "enum":
+							var split = this.key_file.get_string(group, key).split("@");
+							if (split.length != 2) throw new LoaderError.INVALID_ENUM("Does not contain split for type and value in key \"%s\" group \"%s\"", key, group);
+
+							var enum_type = this.load_type(split[0]);
+							if (!enum_type.is_enum()) throw new LoaderError.INVALID_ENUM("Type referenced \"%s\" is not an enum in key \"%s\" group \"%s\"", split[0], key, group);
+
+							var klass = (GLib.EnumClass)enum_type.class_ref();
+							if (klass == null) throw new LoaderError.INVALID_ENUM("Type referenced \"%s\" does not have an enum class in key \"%s\" group \"%s\"", split[0], key, group);
+
+							var val = klass.get_value_by_name(split[1]);
+							if (val == null) {
+								val = klass.get_value_by_nick(split[1]);
+								if (val == null) throw new LoaderError.INVALID_ENUM("The key \"%s\" is not valid in enum \"%s\" declared in key \"%s\" group \"%s\"", split[1], split[0], key, group);
+							}
+
+							keys += key;
+							values += val.value;
 							break;
 						case "reference":
 						case "ref":
