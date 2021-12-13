@@ -81,8 +81,12 @@ libsystemrt_server = shared_library('systemrt-server', ['src/lib/server/context.
 	vala_gir: 'SystemRTServer-1.0.gir',
 	install: true,
 	install_dir: [true, true, true, true],
-	dependencies: [gobject])
-libsystemrt_server_dep = declare_dependency(link_with: libsystemrt_server, dependencies: [gobject])
+	dependencies: [gobject, libsystemrt_policy_dep, libsystemrt_application_dep, libsystemrt_applib_dep])
+libsystemrt_server_dep = declare_dependency(link_with: libsystemrt_server, dependencies: [gobject, libsystemrt_policy_dep, libsystemrt_application_dep, libsystemrt_applib_dep])
+
+executable('systemrtd', ['src/daemon/context.vala'],
+	install: true,
+	dependencies: [gobject, libsystemrt_server_dep])
 
 install_data('data/com.expidus.SystemRT.conf', install_dir: join_paths(dbus.get_pkgconfig_variable('sysconfdir'), 'dbus-1', 'system.d'))
 configure_file(input: 'data/com.expidus.SystemRT.service.in', output: 'com.expidus.SystemRT.service',

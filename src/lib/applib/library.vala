@@ -1,5 +1,6 @@
 namespace SystemRTApplib {
 	public abstract class Library : GLib.Object {
+		public abstract string name { get; }
 		public abstract string[] extensions { get; }
 
 		public virtual bool is_compatible(GLib.File file) throws GLib.Error {
