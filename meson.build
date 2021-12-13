@@ -47,6 +47,24 @@ libsystemrt_common = shared_library('systemrt-common', ['src/lib/common/serializ
 	dependencies: [gobject])
 libsystemrt_common_dep = declare_dependency(link_with: libsystemrt_common, dependencies: [gobject])
 
+libsystemrt_application = shared_library('systemrt-application', ['src/lib/application/context.vala', 'src/lib/application/permission.vala'],
+	vala_header: 'systemrt-application.h',
+	vala_vapi: 'SystemRTApplication-1.0.vapi',
+	vala_gir: 'SystemRTApplication-1.0.gir',
+	install: true,
+	install_dir: [true, true, true, true],
+	dependencies: [gobject, gio, libsystemrt_common_dep])
+libsystemrt_application_dep = declare_dependency(link_with: libsystemrt_application, dependencies: [gobject, gio])
+
+libsystemrt_applib = shared_library('systemrt-applib', ['src/lib/applib/library.vala'],
+	vala_header: 'systemrt-applib.h',
+	vala_vapi: 'SystemRTApplib-1.0.vapi',
+	vala_gir: 'SystemRTApplib-1.0.gir',
+	install: true,
+	install_dir: [true, true, true, true],
+	dependencies: [gobject, gio])
+libsystemrt_applib_dep = declare_dependency(link_with: libsystemrt_applib, dependencies: [gobject, gio])
+
 libsystemrt_policy = shared_library('systemrt-policy', ['src/lib/policy/context.vala', 'src/lib/policy/definition.vala',
 		'src/lib/policy/loader.vala', 'src/lib/policy/policy.vala', 'src/lib/policy/process.vala', 'src/lib/policy/rule.vala', 'src/lib/policy/table.vala'],
 	vala_header: 'systemrt-policy.h',

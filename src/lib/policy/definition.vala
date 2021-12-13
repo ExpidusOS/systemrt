@@ -1,7 +1,7 @@
 namespace SystemRTPolicy {
 	public abstract class Definition {
-		public virtual string get_default_action() {
-			return "deny";
+		public virtual RuleAction get_default_action() {
+			return RuleAction.DENY;
 		}
 
 		public virtual string[] get_rule_types() {
